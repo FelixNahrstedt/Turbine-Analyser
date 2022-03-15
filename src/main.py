@@ -52,5 +52,5 @@ dateImg = '2022-03-14'
 #         appendCsv(f'{path_data}/data_science/not_recognizable.csv',key,data['latitude'],data['longitude'],maxStdBrightness,maxMeanBrightness)
 #     i = i+1
 
-plot_csv_data_recognizability(f'{path_data}/data_science/recognizable.csv',f'{path_data}/data_science/not_recognizable.csv')
+plot_csv_data_recognizability(f'{path_data}/data_science/CSV/recognizable.csv',f'{path_data}/data_science/CSV/not_recognizable.csv')
     
