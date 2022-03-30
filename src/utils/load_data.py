@@ -1,8 +1,16 @@
 import json
+import csv
 
-def import_json():
+# -----------------------------------------------------------
+# all functions for "normal" change detection in Images
+#
+# (C) 2022 Felix Nahrstedt, Berlin, Germany
+# email contact@felixnahrstedt.com
+# -----------------------------------------------------------
+
+def import_json(Bundesland):
     jsonData = {}
-    with open('Data/locations/Vorpommern-Greifswald_50_turbine_locations.json') as f:
+    with open(f'Data/locations/{Bundesland}.json') as f:
         jsonData = json.load(f)
     turbine_keys = []
     for keys in jsonData:

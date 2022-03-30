@@ -3,12 +3,19 @@ import imageio
 import torch
 import numpy as np
 import torchvision
+from PIL import Image
 import csv
+import matplotlib.pyplot as plt
+import os
 
 
-# img_Band2_arr =  imageio.imread('data/jpg_windTurbine/B2.jpg')
-# img_Band3_arr =  imageio.imread('data/jpg_windTurbine/B3.jpg')
-# img_Band4_arr =  imageio.imread('data/jpg_windTurbine/B4.jpg')
+
+# -----------------------------------------------------------
+# all functions that evaluate the image files
+#
+# (C) 2022 Felix Nahrstedt, Berlin, Germany
+# email contact@felixnahrstedt.com
+# -----------------------------------------------------------
 
 def calcBrightness(img_arr):
     sum = 0
@@ -28,11 +35,8 @@ def maxMeanBrightness(args):
     for element in args:
         meanBrightness.append(element.mean(axis=0).mean())
         stdBrightness.append(element.std(axis=0).std())
-    print(f"first thing: {max(meanBrightness)/255}")
     #mean = / amount of pixel and / maximum grayscale val --> 255
     return max(meanBrightness)/255, max(stdBrightness)
-
-
 
 def evaluate_images(path_images, id, date, bands):
     img_Band_arr = []
@@ -41,25 +45,29 @@ def evaluate_images(path_images, id, date, bands):
     maxMeanBright, maxStdBright = maxMeanBrightness(img_Band_arr)
     return maxMeanBright, maxStdBright, img_Band_arr
 
-def appendCsv(pathCsv, id, lat, lon, std, mean):
+
+#! MOVE TO load_data.py !! to-do
+# -----------------------------------------------------------
+# all functions for saving/loading data
+#
+# (C) 2022 Felix Nahrstedt, Berlin, Germany
+# email contact@felixnahrstedt.com
+# -----------------------------------------------------------
+
+def appendCsv(pathCsv, id, lat, lon, std, mean, label, date, qual, region):
     with open(pathCsv, 'a', encoding='UTF8', newline='') as f:
         writer = csv.writer(f)
         # write the header
 
         # write the data
-        writer.writerow([id,lat,lon,std,mean])
-
+        writer.writerow([id,lat,lon,label,mean,std,date])
+def appendCsv_open(pathCsv, allData):
+    with open(pathCsv, 'a', encoding='UTF8', newline='') as f:
+        writer = csv.writer(f)
+         # write the data
+        writer.writerow(allData)
 def createCsv(pathCsv, header):
     with open(pathCsv, 'w', encoding='UTF8', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(header)
 
-# brightness = maxBrightness(img_Band2_arr,img_Band3_arr,img_Band4_arr)
-
-# img_Band2_Norm = normalizeImages(brightness, img_Band2_arr)
-# img_Band3_Norm = normalizeImages(brightness, img_Band3_arr)
-# img_Band4_Norm = normalizeImages(brightness, img_Band4_arr)
-
-#imageio.imwrite('data/jpg_windTurbine/B2_Norm.jpg',(img_Band2_Norm))
-#imageio.imwrite('data/jpg_windTurbine/B3_Norm.jpg',(img_Band3_Norm))
-#imageio.imwrite('data/jpg_windTurbine/B4_Norm.jpg',(img_Band4_Norm))
