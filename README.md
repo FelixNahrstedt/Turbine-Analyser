@@ -16,7 +16,20 @@ Name-Bild: ID-Datum-Band.jpg
 ID: Bild-Id
 lat: latitude
 lon: longitude
-Label-Bild: 0 = Drehendes Windrad, 1 = Stehendes Windrad, 2 = Nicht erkennbar
+
+Label-Bild: 
+            0 = Drehendes Windrad, 
+            1 = Stehendes Windrad, 
+            2 = Nicht erkennbar
+
+Erkennbarkeit: 
+            1 = 3 Rotoren Bewegen sich klar, 
+            2 = 1-2 Rotoren Bewegen sich klar, 
+            3 = Bewegung erkennbar, 
+            4 = Bewegung erkennbar wenn man weiß wo das Windrad steht, 
+            5 = Bewegung wahrscheinlich, wenn man weiß wo windrad steht
+
 Mean-Bild-hell: durchschnittshelligkeit des hellsten bandes
 std-Bild-hell: standardabweichung des hellsten bildes
 Datum: Datum 
+Region: Bundesland

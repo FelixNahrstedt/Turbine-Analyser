@@ -60,12 +60,14 @@ def appendCsv(pathCsv, id, lat, lon, std, mean, label, date, qual, region):
         # write the header
 
         # write the data
-        writer.writerow([id,lat,lon,label,mean,std,date])
+        writer.writerow([id,lat,lon,label,qual,mean,std,date,region])
+
 def appendCsv_open(pathCsv, allData):
     with open(pathCsv, 'a', encoding='UTF8', newline='') as f:
         writer = csv.writer(f)
          # write the data
         writer.writerow(allData)
+
 def createCsv(pathCsv, header):
     with open(pathCsv, 'w', encoding='UTF8', newline='') as f:
         writer = csv.writer(f)

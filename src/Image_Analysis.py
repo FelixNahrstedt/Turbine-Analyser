@@ -22,6 +22,14 @@ bands = ['B2','B3','B4']
 dateImg = '2022-03-14'
 breakOutOfMatrix = False
 
+
+# -----------------------------------------------------------
+# Main Loop for Labeling
+#
+# (C) 2022 Felix Nahrstedt, Berlin, Germany
+# email contact@felixnahrstedt.com
+# -----------------------------------------------------------
+
 # Get all keys 
 
 result = []
@@ -31,7 +39,7 @@ with open(loadProgress, "r") as f1:
     if(len(last_progress)<=2):
         result = [x.strip() for x in last_progress[-1].split(',')]
     else:
-        result = [x.strip() for x in last_progress[len(last_progress)-2].split(',')]
+        result = [x.strip() for x in last_progress[len(last_progress)-1].split(',')]
 
 print(result)
 bundesland = int(result[1])
@@ -50,7 +58,7 @@ while(bundesland < len(bundesLänder)):
         converter = convert_img(key,dateImg,bands)
         deleteGiffs(path_gif)
         print(data['latitude'],data['longitude'])
-        print(f'Bundesländer durch = {bundesland}; Windräder durch = {windrad}')
+        print(f'Bundesland = {bundesLänder[bundesland]}; Windräder durch = {windrad}')
 
         maxMeanBrightness, maxStdBrightness, imgArr = evaluate_images(path_jpg,key,dateImg,bands)
         converter.saveToGif(path_gif,imgArr)
@@ -121,7 +129,7 @@ while(bundesland < len(bundesLänder)):
             
             elif(recognizable=="stop"):
                 inputIncorrect = False
-                print(f'Bundesländer durch = {bundesland}; Windräder durch = {windrad-1}')
+                print(f'Bundesländer durch = {bundesland}; Windräder durch = {windrad}')
                 appendCsv_open(pathCsv=f'{path_data}/data_science/CSV/zwischenspeicher.csv',allData=[datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f%z'),bundesland,windrad])
                 breakOutOfMatrix = True
                 break
