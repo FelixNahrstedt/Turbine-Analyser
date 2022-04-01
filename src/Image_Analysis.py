@@ -1,10 +1,12 @@
 
 #constants:
 import datetime
+from lib2to3.pgen2.token import NEWLINE
 from utils.convert import convert_img
 from utils.data_information import appendCsv, appendCsv_open, createCsv, evaluate_images
 from utils.empty_Data import deleteGiffs
 from utils.load_data import import_json
+from utils.plots import img_plots
 
 
 path_data = 'C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/Data'
@@ -18,6 +20,7 @@ bundesLänder =  ["Bremen", "Schleswig-Holstein",
 "Mecklenburg-Vorpommern", "Hessen", "Rheinland-Pfalz",
 "Thüringen", "Saarland", "Bayern", "Baden-Württemberg"]
 loadProgress = path_data + "/data_science/CSV/zwischenspeicher.csv"
+turbine_data = path_data +"/data_science/CSV/Sentinel-2-WindTurbineData.csv"
 bands = ['B2','B3','B4']
 dateImg = '2022-03-14'
 breakOutOfMatrix = False
@@ -33,15 +36,22 @@ breakOutOfMatrix = False
 # Get all keys 
 
 result = []
+allTurbinesSoFar = []
 with open(loadProgress, "r") as f1:
     last_progress = f1.readlines()
-    print(len(last_progress))
     if(len(last_progress)<=2):
         result = [x.strip() for x in last_progress[-1].split(',')]
     else:
         result = [x.strip() for x in last_progress[len(last_progress)-1].split(',')]
 
-print(result)
+# Check for Doubled elements in database
+with open(turbine_data, "r") as f1:
+    keysSoFar = f1.readlines()[1:]
+doneKeys = []
+for row in keysSoFar:
+    doneKeys.append(int(row.split(',')[0]))
+
+print(f'Wind Turbines looked at so far: {len(doneKeys)}')
 bundesland = int(result[1])
 loadWindrad_once = int(result[2])
 # create Loop
@@ -57,17 +67,20 @@ while(bundesland < len(bundesLänder)):
     # create large gif and show it 
         converter = convert_img(key,dateImg,bands)
         deleteGiffs(path_gif)
+        print('\n')
         print(data['latitude'],data['longitude'])
         print(f'Bundesland = {bundesLänder[bundesland]}; Windräder durch = {windrad}')
 
         maxMeanBrightness, maxStdBrightness, imgArr = evaluate_images(path_jpg,key,dateImg,bands)
-        converter.saveToGif(path_gif,imgArr)
+        matchingImgs = img_plots(path_jpg,key,bands,dateImg)
+        matchedArr = matchingImgs.histogram_matching(imgArr)
+
+        converter.saveToGif(path_gif,matchedArr,imgArr)
 
         # create CSV for storing Data
         ###createCsv(f'{path_data}/data_science/CSV/Sentinel-2-WindTurbineData.csv',['id', 'latitude','longitude','label','quality','max_mean-bright', 'max_std_bright', 'date','region'])
         
         # Ask for spin/no spin/ not recognizable and Image Quality
-        print(data['latitude'],data['longitude'])
         inputIncorrect = True
         while(inputIncorrect):
             recognizable = " "

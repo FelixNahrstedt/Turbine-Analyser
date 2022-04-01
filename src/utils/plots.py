@@ -183,6 +183,7 @@ class img_plots:
         enhanced_image = enhanced_image*255
         cdf = self.get_cdf_hist(enhanced_image)
         return enhanced_image, cdf
+
     def adjust_gamma(self,image, gamma=0.5):
         # build a lookup table mapping the pixel values [0, 255] to
         # their adjusted gamma values
@@ -218,6 +219,24 @@ class img_plots:
             img_arr.append(thresh_frame)
         
         return img_arr
+
+    def histogram_matching(self, arr):
+        for img in arr:
+            for band in self.bands:
+                brighnessVal = 0
+                thisBright = calcBrightness(img)
+                if thisBright>brighnessVal:
+                    maxBrightness = self.bands.index(band)
+                    brighnessVal = thisBright
+
+        matchArr = []
+        ref = arr[maxBrightness]
+        
+        for i in range(len(arr)):
+            matched = exposure.match_histograms(np.asarray(arr[i]), ref)
+            matchArr.append(matched.astype(np.uint8))
+        
+        return matchArr
 
     def optical_flow():
         e = ""

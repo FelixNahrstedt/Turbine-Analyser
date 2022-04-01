@@ -21,6 +21,8 @@ import math
 import earthpy.spatial as es
 import earthpy.plot as ep
 
+from utils.plots import img_plots
+
 os.environ['GDAL_PAM_ENABLED'] = 'NO'
 
 # -----------------------------------------------------------
@@ -70,20 +72,25 @@ class convert_img:
       stacked = (np.dstack((imgArr[0],imgArr[1],imgArr[2]))).astype(np.uint8)
       return stacked 
 
-  def saveToGif(self,path_gif, imgArr, add=""):
+  def saveToGif(self,path_gif, imgArr,unmatchedArr, add=""):
       biggerArray = []
+      biggerArrayUM = []
+
       for img in imgArr:
           newImg = cv2.resize(img, (300,300), interpolation = cv2.INTER_AREA)
           biggerArray.append(newImg)
-      np.shape(biggerArray)
+      for img in unmatchedArr:
+          newImg = cv2.resize(img, (300,300), interpolation = cv2.INTER_AREA)
+          biggerArrayUM.append(newImg)
       imageio.mimsave(f'{path_gif}/{self.id}-{self.date}{add}.gif', biggerArray)
+      imageio.mimsave(f'{path_gif}/{self.id}-{self.date}-unprepared.gif', biggerArrayUM)
 
       cv2.imshow('frame',cv2.merge([biggerArray[0],biggerArray[1],biggerArray[2]]))
       cv2.waitKey()
       while(True):
         #This is to check whether to break the first loop
         isclosed=0
-        cap = cv2.VideoCapture(f'{path_gif}/{self.id}-{self.date}{add}.gif')
+        cap = cv2.VideoCapture(f'{path_gif}/{self.id}-{self.date}-unprepared.gif')
         while (True):
 
             ret, frame = cap.read()
@@ -91,7 +98,7 @@ class convert_img:
             if ret == True:
 
                 cv2.imshow('frame',frame)
-                if cv2.waitKey(50) == 27:
+                if cv2.waitKey(300) == 27:
                     # When esc is pressed isclosed is 1
                     isclosed=1
                     break
