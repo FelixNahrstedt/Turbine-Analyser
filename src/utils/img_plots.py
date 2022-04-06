@@ -16,7 +16,7 @@ from scipy.stats import mode
 from argparse import ArgumentParser
 from PIL import ImageEnhance
 
-from utils.data_information import calcBrightness
+import utils.data_information
 
 # -----------------------------------------------------------
 # Plot Usefult Information
@@ -144,7 +144,7 @@ class img_plots:
             non_linear_gauss.append(enhanced_gauss)
             #cv.imwrite(f'{self.path}/{self.id}-{self.date}-{band}-HIST.jpg',equ)
             cv.imwrite(f'{self.path}/{self.id}-{self.date}-{band}.jpg',arr)
-            thisBright = calcBrightness(arr)
+            thisBright = utils.data_information.calcBrightness(arr)
             if thisBright>brighnessVal:
                 maxBrightness = self.bands.index(band)
                 brighnessVal = thisBright
@@ -221,10 +221,11 @@ class img_plots:
         return img_arr
 
     def histogram_matching(self, arr):
+        maxBrightness = 0
         for img in arr:
             for band in self.bands:
                 brighnessVal = 0
-                thisBright = calcBrightness(img)
+                thisBright = utils.data_information.calcBrightness(img)
                 if thisBright>brighnessVal:
                     maxBrightness = self.bands.index(band)
                     brighnessVal = thisBright
@@ -238,6 +239,22 @@ class img_plots:
         
         return matchArr
 
-    def optical_flow():
-        e = ""
-    
+    def histogram_Transform(self, arr):
+        maxBrightness = 0
+        brighnessVal = 0
+
+        for img in range(len(arr)):
+                thisBright = utils.data_information.calcBrightness(arr[img])
+                if thisBright>brighnessVal:
+                    maxBrightness = img
+                    brighnessVal = thisBright
+                    print(f"chose: {brighnessVal}")
+
+        matchArr = []
+        ref = arr[maxBrightness]
+        
+        for i in range(len(arr)):
+            matched = exposure.match_histograms(ref, np.asarray(arr[i]))
+            matchArr.append(matched.astype(np.uint8))
+        
+        return matchArr

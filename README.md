@@ -48,6 +48,12 @@ Region: Bundesland
 PlaneBow: 
 52.5783847 10.914772
 Bundesland = Niedersachsen; Windräder durch = 34
+oder
+53.7313747 13.3508563
+Bundesland = Mecklenburg-Vorpommern; Windräder durch = 106
+or
+53.7137076 13.3284545
+Bundesland = Mecklenburg-Vorpommern; Windräder durch = 119
 
 RGB at its Peak: 
 53.4673175 7.3058046
@@ -57,6 +63,23 @@ Bildverschnitt:
 53.1892 8.272147
 Bundesland = Niedersachsen; Windräder durch = 737
 
+Car on Brandenburger Road: 
+53.0409301 13.0192068
+Bundesland = Brandenburg; Windräder durch = 288
+
+Cars on Autobahn: 
+2022-03-09
+49.3022789 11.5465232
+Bundesland = Bayern; Windräder durch = 40
+
+Space Rainbows: 
+51.0151836, 8.1369041
+Bundesland = Nordrhein-Westfalen; Windräder durch = 74
+
+fügen die Bilder zusammen???
+2022-03-19
+49.3065742 11.5390677
+Bundesland = Bayern; Windräder durch = 41
 # Wo ist es schwer erkennbar: 
 Schatten auf See/Meer:
 53.4222285 10.4005054
@@ -72,6 +95,9 @@ Bundesland = Niedersachsen; Windräder durch = 1
 Grenze des Satellitenbildes: 
 54.2855592 8.9995802
 Bundesland = Schleswig-Holstein; Windräder durch = 692
+oder
+50.2224796 11.53903
+Bundesland = Bayern; Windräder durch = 65
 
 Kein Schattenwurf: (Peter Pans Windrad???)
 54.08834 9.2468273
@@ -85,3 +111,26 @@ Wolken trotz Cloud Filter:
 Bundesland = Niedersachsen; Windräder durch = 5
 53.5300905 7.219292
 Bundesland = Niedersachsen; Windräder durch = 4
+
+In Waldgebieten: 
+52.018377, 13.1880972
+Bundesland = Brandenburg; Windräder durch = 187
+oder besser
+51.975992 13.4212314
+Bundesland = Brandenburg; Windräder durch = 644
+
+über Solaranlagen:
+52.2036865 7.6222034
+Bundesland = Nordrhein-Westfalen; Windräder durch = 600
+
+Zu große Bandunterschiede:
+51.5007078 8.8463954
+Bundesland = Nordrhein-Westfalen; Windräder durch = 755
+
+Komische andere Schatten??
+49.773489 8.302044
+Bundesland = Rheinland-Pfalz; Windräder durch = 131
+
+Viele Autos????? oder regenbogen ??? oder so??
+49.3681291 10.8613009
+Bundesland = Bayern; Windräder durch = 15

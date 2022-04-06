@@ -1,3 +1,4 @@
+import random
 from cv2 import waitKey
 from matplotlib import image
 from osgeo import gdal
@@ -10,6 +11,8 @@ import imageio
 from PIL import Image, ImageEnhance,ImageChops
 import cv2
 # Morphological filtering
+from scipy.ndimage.filters import gaussian_filter
+
 from skimage.morphology import opening
 from skimage.morphology import disk
 from skimage import exposure
@@ -20,8 +23,6 @@ import earthpy as et
 import math
 import earthpy.spatial as es
 import earthpy.plot as ep
-
-from utils.plots import img_plots
 
 os.environ['GDAL_PAM_ENABLED'] = 'NO'
 
@@ -72,25 +73,25 @@ class convert_img:
       stacked = (np.dstack((imgArr[0],imgArr[1],imgArr[2]))).astype(np.uint8)
       return stacked 
 
-  def saveToGif(self,path_gif, imgArr,unmatchedArr, add=""):
+  def saveToGif(self,path_gif, imgArr,unmatchedArr=None, add=""):
       biggerArray = []
-      biggerArrayUM = []
+      #biggerArrayUM = []
 
       for img in imgArr:
           newImg = cv2.resize(img, (300,300), interpolation = cv2.INTER_AREA)
           biggerArray.append(newImg)
-      for img in unmatchedArr:
-          newImg = cv2.resize(img, (300,300), interpolation = cv2.INTER_AREA)
-          biggerArrayUM.append(newImg)
+    #   for img in unmatchedArr:
+    #       newImg = cv2.resize(img, (300,300), interpolation = cv2.INTER_AREA)
+    #       biggerArrayUM.append(newImg)
       imageio.mimsave(f'{path_gif}/{self.id}-{self.date}{add}.gif', biggerArray)
-      imageio.mimsave(f'{path_gif}/{self.id}-{self.date}-unprepared.gif', biggerArrayUM)
+      #imageio.mimsave(f'{path_gif}/{self.id}-{self.date}-unprepared.gif', biggerArrayUM)
 
       cv2.imshow('frame',cv2.merge([biggerArray[0],biggerArray[1],biggerArray[2]]))
       cv2.waitKey()
       while(True):
         #This is to check whether to break the first loop
         isclosed=0
-        cap = cv2.VideoCapture(f'{path_gif}/{self.id}-{self.date}-unprepared.gif')
+        cap = cv2.VideoCapture(f'{path_gif}/{self.id}-{self.date}.gif')
         while (True):
 
             ret, frame = cap.read()
@@ -114,57 +115,16 @@ class convert_img:
 
       # Closes all the frames
       cv2.destroyAllWindows()
+  
+  def saveGrayScaleFromRGB(self,imgPath, imgArr, fileName, bands):
+      for i in range(len(imgArr)):
+          cv2.imwrite(f'{imgPath}/{fileName}-{bands[i]}-unspinned.jpeg', imgArr[i])
 
-    
-
-path_data = 'C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/Data'
-path_jpg = f'{path_data}/data_science/images_while_looping'
-
-def image_entropy(img):
-    w,h = img.size
-    a = np.array(img.convert('RGB')).reshape((w*h,3))
-    h,e = np.histogramdd(a, bins=(16,)*3, range=((0,256),)*3)
-    prob = h/np.sum(h) # normalize
-    prob = prob[prob>0] # remove zeros
-    return -np.sum(prob*np.log2(prob))
-
-b2 = "280498836-2022-03-14-B2.jpg"
-b3 = "280498836-2022-03-14-B3.jpg"
-b4 = "280498836-2022-03-14-B4.jpg"
-
-frame1 = np.asarray(Image.open(f'{path_jpg}/{b2}'))
-frame2 = np.asarray(Image.open(f'{path_jpg}/{b3}'))
-frame3 = np.asarray(Image.open(f'{path_jpg}/{b4}'))
-hsv = np.zeros_like(frame1)
-hsv[...,1] = 255
-
-flow = None
-flow = cv2.calcOpticalFlowFarneback(prev=frame1,
-                                    next=frame2, flow=flow,
-                                    pyr_scale=0.2, levels=5, winsize=3,
-                                    iterations=10, poly_n=3, poly_sigma=0,
-                                    flags=10)
-mag1, ang1 = cv2.cartToPolar(flow[...,0], flow[...,1])
-img1 =cv2.normalize(mag1,None,0,255,cv2.NORM_MINMAX).astype(np.uint8)
-
-flow = cv2.calcOpticalFlowFarneback(prev=frame2,
-                                    next=frame3, flow=flow,
-                                    pyr_scale=0.8, levels=15, winsize=5,
-                                    iterations=10, poly_n=5, poly_sigma=0,
-                                    flags=10)
-mag2, ang2 = cv2.cartToPolar(flow[...,0], flow[...,1])
-img2 =cv2.normalize(mag2,None,0,255,cv2.NORM_MINMAX).astype(np.uint8)
-
-flow = cv2.calcOpticalFlowFarneback(prev=frame3,
-                                    next=frame1, flow=flow,
-                                    pyr_scale=0.8, levels=15, winsize=5,
-                                    iterations=10, poly_n=5, poly_sigma=0,
-                                    flags=10)
-mag3, ang3 = cv2.cartToPolar(flow[...,0], flow[...,1])
-img3 =cv2.normalize(mag3,None,0,255,cv2.NORM_MINMAX).astype(np.uint8)
-# Change here
-
-imgStack = [frame1,frame1,frame1,frame2,frame2,frame2,frame3,frame3,frame3]
-imageio.mimsave(f'{path_jpg}/flowMotion.gif', [img1,img1,img2,img2,img3,img3])
-imageio.mimsave(f'{path_jpg}/turbineSpin.gif', imgStack)
+  def image_entropy(img):
+        w,h = img.size
+        a = np.array(img.convert('RGB')).reshape((w*h,3))
+        h,e = np.histogramdd(a, bins=(16,)*3, range=((0,256),)*3)
+        prob = h/np.sum(h) # normalize
+        prob = prob[prob>0] # remove zeros
+        return -np.sum(prob*np.log2(prob))
 

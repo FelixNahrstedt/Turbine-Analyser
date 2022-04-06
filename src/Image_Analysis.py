@@ -6,7 +6,7 @@ from utils.convert import convert_img
 from utils.data_information import appendCsv, appendCsv_open, createCsv, evaluate_images
 from utils.empty_Data import deleteGiffs
 from utils.load_data import import_json
-from utils.plots import img_plots
+from utils.img_plots import img_plots
 
 
 path_data = 'C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/Data'

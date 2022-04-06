@@ -1,6 +1,6 @@
 from pathlib import Path
 from datetime import date, datetime, timedelta
-from utils.plots import *
+from utils.img_plots import *
 from utils.data_information import appendCsv, appendCsv_open, createCsv
 from utils.convert import *
 from utils.data_information import evaluate_images
