@@ -1,6 +1,7 @@
 
 import random
 import imageio
+from matplotlib import spines
 import pandas as pd
 import torch
 import numpy as np
@@ -11,8 +12,11 @@ import matplotlib.pyplot as plt
 import mpl_toolkits
 import matplotlib.pyplot as plt
 from utils.convert import convert_img
+import pandas as pd
+from numpy.random import RandomState
 from scipy.ndimage import gaussian_filter
 import utils.img_plots 
+from sklearn.model_selection import train_test_split
 
 
 # -----------------------------------------------------------
@@ -160,9 +164,10 @@ def unspin_turbines(path_data, path_jpg, path_gif,path_unspinned):
 
         bands = ["B2","B3","B4"]
         imgArr = []
-        fileName = f'{satImg[0]}-{satImg[1]}'
+        originalFile = f'{satImg[0]}-{satImg[1]}'
+        fakeFile = f'{satImg[0]}-unspin-{satImg[1]}'
         for band in bands: 
-            imgArr.append(np.asarray(Image.open(f'{path_jpg}/{fileName}-{band}.jpg')))
+            imgArr.append(np.asarray(Image.open(f'{path_jpg}/{originalFile}-{band}.jpg')))
 
 
         id = "280498836"
@@ -202,8 +207,85 @@ def unspin_turbines(path_data, path_jpg, path_gif,path_unspinned):
         imgArr.append(saltPepperChannel(transformed[1],40))
         imgArr.append(saltPepperChannel(transformed[2],40))
         convertTransform = convert_img(id,date,imgArr)
-        convertTransform.saveToGif(path_jpg,imgArr)
-        convertTransform.saveGrayScaleFromRGB(path_unspinned,imgArr,fileName,bands)
-        stop = input("to stop enter stop: ")
-        if(stop == "stop"):
-            break
+        #convertTransform.saveToGif(path_jpg,imgArr)
+        convertTransform.saveGrayScaleFromRGB(path_unspinned,imgArr,fakeFile,bands)
+
+def createSubCsv(turbine_data, csvData):
+    subsetSize = 1064
+    header = ['id', 'latitude','longitude','label','quality','max_mean-bright', 'max_std_bright', 'date','region']
+    not_spinning = csvData+"not_spinning.csv"
+    spinning = csvData+"spinning.csv"
+    undetected = csvData+"undetected.csv"
+
+    createCsv(not_spinning, header)
+    createCsv(spinning, header)
+    createCsv(undetected, header)
+
+    file = open(turbine_data)
+    csvreader = csv.reader(file)
+    header = []
+    header = next(csvreader)
+    rows = []
+    for row in csvreader:
+        rows.append(row)
+    file.close()
+    print(len(rows))
+    spines = 0
+    nospins = 0
+    undetectedes =0
+    print(header)
+    for row in rows:
+        if(row[3] == '0' and (row[4] == '1' or row[4] == '2' or row[4] == '3')):
+            if(spines < subsetSize):
+                spines = spines +1
+                #append date and ID for later image loading
+                appendCsv_open(spinning,row)
+            if(row[4] == '1' or row[4] == '2'):
+                if(nospins<subsetSize):
+                    nospins = nospins+1
+                    row[0] = row[0]+"-unspin"
+                    row[3] = 1
+                    appendCsv_open(not_spinning,row)
+
+        if(row[3] == '2'):
+            if(undetectedes<subsetSize):
+                undetectedes = undetectedes +1
+                appendCsv_open(undetected,row)
+        if(row[3] == '1'):
+            if(nospins<1064):
+                nospins = nospins +1
+                appendCsv_open(not_spinning,row)
+    
+    print(spines, nospins, undetectedes)
+
+def splitTrainTest(spinningCsv, notSpinningCsv,UndetectedCsv, TrainCsv, TestCsv):
+    csvreader = csv.reader(spinningCsv)
+
+    dfSpinTrain,dfSpinTest = csvToTrainTest(spinningCsv)
+    dfNoSpinTrain,dfNoSpinTest = csvToTrainTest(notSpinningCsv)
+    dfUndetectedTrain,dfUndetectedTest = csvToTrainTest(UndetectedCsv)
+    
+    dfTrain = pd.concat([dfSpinTrain,dfNoSpinTrain,dfUndetectedTrain])
+    dfTest = pd.concat([dfSpinTest,dfNoSpinTest,dfUndetectedTest])
+    print(f"Train: {len(dfTrain)}")
+    print(f"Train: {len(dfTest)}")
+
+    #shuffle
+    dfTrainShuffled = dfTrain.sample(frac=1)
+    dfTestShuffled = dfTest.sample(frac=1)
+    dfTrainShuffled.to_csv(TrainCsv, index=False)
+    dfTestShuffled.to_csv(TestCsv, index=False)
+
+
+def csvToTrainTest(filePath):
+    data = pd.read_csv(filePath)
+    data['split'] = np.random.randn(data.shape[0], 1)
+
+    rng = RandomState()
+
+    train = data.sample(frac=0.8, random_state=rng)
+    test = data.loc[~data.index.isin(train.index)]  
+    print(f"Train: {len(train)}")
+    print(f"Test: {len(test)}")
+    return train, test
+    

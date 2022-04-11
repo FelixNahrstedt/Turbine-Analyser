@@ -134,3 +134,6 @@ Bundesland = Rheinland-Pfalz; Windräder durch = 131
 Viele Autos????? oder regenbogen ??? oder so??
 49.3681291 10.8613009
 Bundesland = Bayern; Windräder durch = 15
+
+# NAMECHANGE
+after changing spinning images with quality 1 or 2 into unspinning images, the new not spinning images have the name -->  ID-unspin-Datum-Band.jpg

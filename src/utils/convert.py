@@ -118,7 +118,7 @@ class convert_img:
   
   def saveGrayScaleFromRGB(self,imgPath, imgArr, fileName, bands):
       for i in range(len(imgArr)):
-          cv2.imwrite(f'{imgPath}/{fileName}-{bands[i]}-unspinned.jpeg', imgArr[i])
+          cv2.imwrite(f'{imgPath}/{fileName}-{bands[i]}.jpg', imgArr[i])
 
   def image_entropy(img):
         w,h = img.size
