@@ -1,5 +1,6 @@
 {
     "python.analysis.extraPaths": [
-        "./src/utils"
+        "./src/utils",
+        "./src/utils/data_preperation"
     ]
 }

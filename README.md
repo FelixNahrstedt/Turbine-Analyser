@@ -11,7 +11,11 @@ https://www.lfd.uci.edu/~gohlke/pythonlibs/
 3. either use functionality or directly start main file
 
 # image database
-4.762x3 images
+4.762x3 images --> 8-bit 40x40 pixel
+# left   = long + 0.00165
+# right  = long - 0.00185
+# bottom = lat + 0.0030
+# top    = lat - 0.0005
 
 # Csv Label Database:
 
@@ -80,6 +84,7 @@ fügen die Bilder zusammen???
 2022-03-19
 49.3065742 11.5390677
 Bundesland = Bayern; Windräder durch = 41
+
 # Wo ist es schwer erkennbar: 
 Schatten auf See/Meer:
 53.4222285 10.4005054

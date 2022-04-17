@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-topic">
+    <div class="left-text">
+    <h1 style="text-align: center;">{% block title %} Auswertung {% endblock %}</h1>
+    {% for data in inputList %}
+        <h2 >Latitude: {{ data['lat'] }} </h2> 
+        {% endfor %}
+    {% for data in inputList %}
+        <h2>Longitude: {{ data['lon'] }} </h2> 
+        {% endfor %}
+    {% for data in inputList %}
+        <h2>Datespan: : {{ data['date-Start'] }} - {{ data['date-End'] }} </h2> 
+        {% endfor %} 
+     <h2>The KI says: {{predicted}}</h2>   
+        </div>  
+    <div class="right-picture">
+        <img src={{name}} width="80%"/>
+    </div>
+    
+    <div class="clear"></div>
+</div>
+
+
+{% endblock %}
