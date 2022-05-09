@@ -1,8 +1,9 @@
 import sys
 import os
+#from data_information import createSubCsv, splitTrainTest
 sys.path.append("C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/src")
 
-from utils.data_preperation import data_information
+from utils.data_preperation.data_information import createSubCsv,splitTrainTest
 
 
 path_data = 'C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/Data'
@@ -20,9 +21,9 @@ def splitTrainingTest(path_labeled_csv,path_image,path_splitting_Csv, path_train
     #SET LAST PATH TO NONE::CHANGE INTO WANTED FOLDER
     #unspin_turbines(path_labeled_csv,path_image,None)
     #for all 3 sub csvs --> spin, no spin, undetectable
-    #spinningCsv,notSpinningCsv, UndetectedCsv = createSubCsv(path_labeled_csv,path_splitting_Csv)
+    spinningCsv, UndetectedCsv = createSubCsv(path_labeled_csv,path_splitting_Csv)
     #split into training and testing
-    #splitTrainTest(spinningCsv, notSpinningCsv,UndetectedCsv,path_trainSet,path_testSet)
+    splitTrainTest(spinningCsv,UndetectedCsv,path_trainSet,path_testSet)
     print("Here")
 
 splitTrainingTest(turbine_data,path_jpg,csvPath,TrainSet, TestSet)

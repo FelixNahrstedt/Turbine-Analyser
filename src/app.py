@@ -5,12 +5,15 @@ import numpy as np
 from flask import Flask, redirect, render_template, jsonify, url_for, request
 import torch
 import torchvision.transforms as transforms
+from utils.model.evaluate_single_image import eval_image_with_model
+from utils.model.evaluate_single_image import run_inference
 from utils.data_preperation.data_information import evaluate_images
 from utils.data_labeling.empty_Data import deleteGiffs, deleteImages
 from utils.data_collection.convert import convert_img
 from utils.data_collection.download_Satellite_tiff import image_preparation
 from forms import LatLongForm
-
+from torchvision import models
+import torch.nn as nn
 
 from utils.model.SatelliteTurbinesDataset import Net
 
@@ -31,17 +34,11 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
 
 @app.route('/', methods=('GET', 'POST'))
-def index():
+def index(error = ""):
     form = LatLongForm()
     if form.validate_on_submit():
         return redirect(url_for('imgInput', form=form))
-    return render_template('index.html', form=form)
-
-
-@app.route('/validate',  methods=['GET', 'POST'])
-def validate():
-    if request.method == 'POST':
-        form = LatLongForm(request.form)
+    return render_template('index.html', form=form, error=error)
         
     
 
@@ -60,6 +57,8 @@ def imgInput():
         print(datum_img)
         converter = convert_img(key,datum_img,bands)
         startDate, endDate = image_preparation(path_tiffs,path_jpg,bands,float(form.latitude.data),float(form.longitude.data),datum_img,converter)
+        if(startDate==False):
+            return render_template('index.html', form=LatLongForm(), error="Could not find usable Images around that Time/Location!")
         _maxMeanBrightness, _maxStdBrightness, imgArr = evaluate_images(path_jpg,key,form.datumField.data,bands)
         converter.onlySaveGif(path_gif,imgArr)
         #Get Analysis
@@ -69,49 +68,17 @@ def imgInput():
         for band in bands:
             path = f'{path_jpg}/{key}-{datum_img}-{band}.jpg'
             imgArr.append(image.imread(path))
-        transform = transforms.Compose([transforms.ToPILImage(),
-                        transforms.Resize((40, 40)),
-                        transforms.ToTensor()],
-                    )
-        stacked = (np.dstack((imgArr[0],imgArr[1],imgArr[2]))).astype(np.uint8)
-        item=transform(stacked)
-        out = run_inference(item)
-
+        out, _ = eval_image_with_model(path_data+"/data_science/Models/Base-Model.pt",imgArr)
         return render_template('imgInput.html',name=f"/static/gifs/{key}-{form.datumField.data}.gif", inputList=inputList, predicted=out)
     form = LatLongForm()
     return render_template('403Error.html')
     
+@app.after_request
+def after_request(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
 
 #Model
-model = Net()
-classes = ["spinning","not spinning", "undetected"]
-model.load_state_dict(torch.load(path_data+"/data_science/Models/Sentinel_2.pt"))
-model.eval()
-def run_inference(in_tensor):
-    with torch.no_grad():
-        # LunaModel takes a batch and outputs a tuple (scores, probs)
-        out_tensor = model(in_tensor.unsqueeze(0)).squeeze(0)
-        probs = out_tensor.tolist()
-        print(f'Spin: {probs[0]}, No-Spin: {probs[1]}, Undetected: {probs[2]}' )
-        out = probs.index(max(probs))
-        print(classes[out])
-        return classes[out]
-
-
-@app.route("/predict", methods =["POST"])
-def predict(bands = ["B2","B3","B4"]):
-    imgArr = []
-    for band in bands:
-        path = f'{path_jpg}/{"8043435502"}-{"2022-03-14"}-{band}.jpg'
-        imgArr.append(image.imread(path))
-    transform = transforms.Compose([transforms.ToPILImage(),
-                    transforms.Resize((40, 40)),
-                    transforms.ToTensor()],
-                )
-    stacked = (np.dstack((imgArr[0],imgArr[1],imgArr[2]))).astype(np.uint8)
-    item=transform(stacked)
-    out = run_inference(item)
-    return jsonify(out)
 
 if __name__ == '__main__':
 	app.run(debug=True)

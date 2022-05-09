@@ -48,7 +48,7 @@ class RegionST(Region):
         if self._shape is None:
             return (self.height, self.width)
         else: return self._shape
-
+    
     @property
     def times(self):
         "Property that computes the date_range for the region."
@@ -67,6 +67,11 @@ class RegionST(Region):
             time_end = args['time_end']
         return cls(args['name'], args['bbox'], args['pixel_size'],
                    time_start=time_start, time_end=time_end)
+
+    @classmethod
+    def getInfo(self):
+        a = {self.epsg, self.scale_meters, self._shape, self.time_start ,self.time_end,self.time_margin,self.time_freq}
+        print(a)
 
 def extract_region(df_row, cls=Region):
     "Create Region object from a row of the metadata dataframe."
@@ -160,14 +165,10 @@ def download_data(R:RegionST, times, products, bands, path_save, scale=None, max
                 im = imCol.median()
                 imCol = ee.ImageCollection([im])
                 colList = imCol.toList(imCol.size())
-                # info = colList.getInfo()
-                # data_times = [pd.to_datetime(o['properties']['system:time_start'], unit='ms') for o in info]
-                # data_cloudy = [o['properties']['CLOUDY_PIXEL_PERCENTAGE'] for o in info]
-                # Download each image
-                print(colList.size().getInfo())
+                
                 for i in range(colList.size().getInfo()):
                     image = ee.Image(colList.get(i))
-                    ee.Date(image.get('system:time_start')).format("yyyy-MM-dd")
+                    
                     fname = 'download'
                     #fname = image.get('system:id').getInfo().split('/')[-1]
                     fnames_full = [f'{fname}.{b}.tif' for b in bands]
@@ -181,18 +182,20 @@ def download_data(R:RegionST, times, products, bands, path_save, scale=None, max
                             for i in range(10): # Try 10 times
                                 if zip_error:
                                     try:
+
                                         url = image.getDownloadURL(
-                                            {'scale': scale, 'crs': 'EPSG:4326',
-                                             'region': f'{region}'})
+                                            {"scale": scale, "crs": 'EPSG:4326',
+                                             "region": f'{region}'})
                                         r = requests.get(url)
                                         with open(str(path_save/'data.zip'), 'wb') as f:
                                             f.write(r.content)
+                                        
                                         with zipfile.ZipFile(str(path_save/'data.zip'), 'r') as f:
                                             files = f.namelist()
                                             f.extractall(str(path_save))
                                         os.remove(str(path_save/'data.zip'))
                                         zip_error = False
-                                    except:
+                                    except Exception as e:
                                         zip_error = True
                                         os.remove(str(path_save/'data.zip'))
                                         time.sleep(10)

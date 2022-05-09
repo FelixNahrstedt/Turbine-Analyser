@@ -205,13 +205,13 @@ def unspin_turbines(path_data, path_jpg,path_unspinned):
         convertTransform.saveGrayScaleFromRGB(path_unspinned,imgArr,fakeFile,bands)
 
 def createSubCsv(turbine_data, csvData):
-    subsetSize = 1064
+    subsetSize = 1600
     header = ['id', 'latitude','longitude','label','quality','max_mean-bright', 'max_std_bright', 'date','region']
-    not_spinning = csvData+"not_spinning.csv"
-    spinning = csvData+"spinning.csv"
-    undetected = csvData+"undetected.csv"
+    #not_spinning = csvData+"not_spinning.csv"
+    spinning = csvData+"spinning-2class.csv"
+    undetected = csvData+"undetected-2class.csv"
 
-    createCsv(not_spinning, header)
+    #createCsv(not_spinning, header)
     createCsv(spinning, header)
     createCsv(undetected, header)
 
@@ -225,43 +225,43 @@ def createSubCsv(turbine_data, csvData):
     file.close()
     print(len(rows))
     spines = 0
-    nospins = 0
+    #nospins = 0
     undetectedes =0
     print(header)
     for row in rows:
-        if(row[3] == '0' and (row[4] == '1' or row[4] == '2' or row[4] == '3')):
+        if(row[3] == '0' and (int(row[4])<4)):
             if(spines < subsetSize):
                 spines = spines +1
                 #append date and ID for later image loading
                 appendCsv_open(spinning,row)
-            if(row[4] == '1' or row[4] == '2'):
-                if(nospins<subsetSize):
-                    nospins = nospins+1
-                    row[0] = row[0]+"-unspin"
-                    row[3] = 1
-                    appendCsv_open(not_spinning,row)
+            # if(row[4] == '1' or row[4] == '2'):
+            #     if(nospins<subsetSize):
+            #         nospins = nospins+1
+            #         row[0] = row[0]+"-unspin"
+            #         row[3] = 1
+            #         appendCsv_open(not_spinning,row)
 
         if(row[3] == '2'):
             if(undetectedes<subsetSize):
                 undetectedes = undetectedes +1
                 appendCsv_open(undetected,row)
-        if(row[3] == '1'):
-            if(nospins<1064):
-                nospins = nospins +1
-                appendCsv_open(not_spinning,row)
+        # if(row[3] == '1'):
+        #     if(nospins<1064):
+        #         nospins = nospins +1
+        #         appendCsv_open(not_spinning,row)
     
-    print(spines, nospins, undetectedes)
-    return spinning, not_spinning, undetected
+    #print(spines, nospins, undetectedes)
+    return spinning, undetected
 
-def splitTrainTest(spinningCsv, notSpinningCsv,UndetectedCsv, TrainCsv, TestCsv):
+def splitTrainTest(spinningCsv,UndetectedCsv, TrainCsv, TestCsv,notSpinningCsv=""):
     csvreader = csv.reader(spinningCsv)
 
     dfSpinTrain,dfSpinTest = csvToTrainTest(spinningCsv)
-    dfNoSpinTrain,dfNoSpinTest = csvToTrainTest(notSpinningCsv)
+    #dfNoSpinTrain,dfNoSpinTest = csvToTrainTest(notSpinningCsv)
     dfUndetectedTrain,dfUndetectedTest = csvToTrainTest(UndetectedCsv)
     
-    dfTrain = pd.concat([dfSpinTrain,dfNoSpinTrain,dfUndetectedTrain])
-    dfTest = pd.concat([dfSpinTest,dfNoSpinTest,dfUndetectedTest])
+    dfTrain = pd.concat([dfSpinTrain,dfUndetectedTrain])
+    dfTest = pd.concat([dfSpinTest,dfUndetectedTest])
     print(f"Train: {len(dfTrain)}")
     print(f"Train: {len(dfTest)}")
 

@@ -142,3 +142,6 @@ Bundesland = Bayern; Windräder durch = 15
 
 # NAMECHANGE
 after changing spinning images with quality 1 or 2 into unspinning images, the new not spinning images have the name -->  ID-unspin-Datum-Band.jpg
+
+Normales Modell: 
+

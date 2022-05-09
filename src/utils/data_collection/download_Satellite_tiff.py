@@ -30,14 +30,15 @@ def fetch_satellite_image(path_save, bands, image_Frame,first_Date,last_Date):
     time_window = R.times[0], R.times[-1]
 
     # Download median composite of the 3 least cloudy images within the time_window
-    download_data(R, time_window, products, bands, path_save,  
-                show_progress=True, max_cloud_fraction=50)
+    download_data(R, time_window, products, bands, path_save,
+                show_progress=True)
 
 # adapt the input date if no cloudless image is found
 def image_preparation(path_tiffs, path_jpg, bands, lat, long, inputDate, converter:convert_img):
     loop = True
-    daySpanStart = 5
-    daySpanEnd = 0
+    counter = 0
+    daySpanStart = 3
+    daySpanEnd = -3
     dateFirst = date.fromisoformat(inputDate)
     dateSec = date.fromisoformat(inputDate)
     while(loop):
@@ -55,9 +56,11 @@ def image_preparation(path_tiffs, path_jpg, bands, lat, long, inputDate, convert
             loop = False
         except:
             print("fetch next date")
+            counter +=1
+            if(counter>5):
+                return False, False
             daySpanStart +=2
             daySpanEnd +=2
-
 
 
     converter.saveToJPG(path_jpg,path_tiffs)

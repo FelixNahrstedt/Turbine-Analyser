@@ -49,9 +49,11 @@ def fetchImages(progress_csv,bundesLänder,dateImg,bands,img_path, tiff_path,bas
             converter = convert_img(key,dateImg,bands)
             deleteImages(f"{basePath}/Satellite")
             startDate, endDate = image_preparation(tiff_path,img_path, bands,data['latitude'],data['longitude'],dateImg,converter)
-            
+            if(startDate == False):
+                continue
             print(data['latitude'],data['longitude'])
             print(f'\nBundesland: {bundesLänder[bundesland]}, Windrad: {windrad},\n ')
+            
             
             windrad = windrad+1
             stop = input("Wanna break = stop")
