@@ -46,10 +46,14 @@ def image_preparation(path_tiffs, path_jpg, bands, lat, long, inputDate, convert
         dateSec = date.fromisoformat(inputDate)
         dateFirst -= timedelta(days=daySpanStart)
         dateSec -= timedelta(days=daySpanEnd)
-        left   = long + 0.00165
-        right  = long - 0.00185
-        bottom = lat + 0.0030
-        top    = lat - 0.0005
+        # left   = long + 0.00165
+        # right  = long - 0.00185
+        # bottom = lat + 0.0030
+        # top    = lat - 0.0005
+        left   = long + 0.0006
+        right  = long - 0.0006
+        bottom = lat + 0.0006
+        top    = lat - 0.0006
         try:
             deleteGiffs(path_tiffs)
             fetch_satellite_image(Path(path_tiffs), bands,[left,bottom,right,top],dateFirst.strftime("%Y/%m/%d"),dateSec.strftime("%Y/%m/%d"))

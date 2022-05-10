@@ -57,14 +57,14 @@ class Net(nn.Module):
         self.conv1_batchnorm = nn.BatchNorm2d(num_features=n_chans1)
         self.conv2 = nn.Conv2d(n_chans1, n_chans1//2, kernel_size=3, padding=1)
         self.conv2_batchnorm = nn.BatchNorm2d(num_features=n_chans1//2)
-        self.fc1 = nn.Linear((n_chans1//2) * 10 *10, 50)
+        self.fc1 = nn.Linear((n_chans1//2) * (5//2) *(5//2), 50)
         self.fc2 = nn.Linear(50, 2)
     def forward(self, x):
         out = self.conv1_batchnorm(self.conv1(x))
         out = F.max_pool2d(torch.tanh(out), 2)
         out = self.conv2_batchnorm(self.conv2(out))
         out = F.max_pool2d(torch.tanh(out), 2)
-        out = out.view(-1, (self.n_chans1//2) * 10 *10)
+        out = out.view(-1, (self.n_chans1//2) * (5//2) *(5//2))
         out = torch.tanh(self.fc1(out))
         out = self.fc2(out)
         return out

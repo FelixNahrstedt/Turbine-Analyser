@@ -52,7 +52,7 @@ def train_and_validate(path_train_set,path_test_set,path_images,BATCH_SIZE, pret
     #                 transforms.ToTensor(),
     #                 transforms.Normalize([0.485,0.456,0.406],[0.229,0.224,0.225])]
     #             )
-    transform = transforms.Compose([transforms.ToPILImage(),transforms.Resize((40,40)),transforms.ToTensor()])
+    transform = transforms.Compose([transforms.ToPILImage(),transforms.Resize((25,25)),transforms.CenterCrop((10,10)),transforms.ToTensor()])
     train_dataset=ImageDataset(trainSet,path_images,transform)
     val_dataset=ImageDataset(testSet,path_images,transform)
 
@@ -100,7 +100,7 @@ def train_and_validate(path_train_set,path_test_set,path_images,BATCH_SIZE, pret
 
     #Training
 
-    optimizer = optim.Adam(model.parameters(), lr=0.006) 
+    optimizer = optim.Adam(model.parameters(), lr=0.0016) 
     loss_fn = nn.CrossEntropyLoss()
     name = "Base-Model"
     print(sum(p.numel() for p in model.parameters()))
@@ -141,6 +141,6 @@ def select_n_random(data, labels, n=100):
         perm = torch.randperm(len(data))
         return data[perm][:n], labels[perm][:n]
         
-train_and_validate(TrainSet,TestSet,path_jpg,8, path_data+"/data_science/Models/Sentinel_2_pretrained-Dense.pt")
+train_and_validate(TrainSet,TestSet,path_jpg,16, path_data+"/data_science/Models/Sentinel_2_pretrained-Dense.pt")
 
 

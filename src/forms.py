@@ -22,7 +22,7 @@ def plotForThesis():
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
     plt.legend(['training accuracy', 'validation accuracy',"training loss", "validation loss"], loc='lower right')
-    plt.savefig("Data/data_science/PLOTS/untuned-BaseModel_not_adapted-lr-0-006.png")
+    plt.savefig("Data/data_science/PLOTS/overfit-BaseModel_not_adapted-lr-0-005.png")
 
     plt.show()
 plotForThesis()

@@ -1,5 +1,6 @@
 from datetime import date
 import sys
+import cv2
 from matplotlib import image
 import numpy as np
 from flask import Flask, redirect, render_template, jsonify, url_for, request
@@ -60,6 +61,7 @@ def imgInput():
         if(startDate==False):
             return render_template('index.html', form=LatLongForm(), error="Could not find usable Images around that Time/Location!")
         _maxMeanBrightness, _maxStdBrightness, imgArr = evaluate_images(path_jpg,key,form.datumField.data,bands)
+        cv2.imwrite('src/static/staticImg/myImage.png',cv2.merge([imgArr[0],imgArr[1],imgArr[2]]))
         converter.onlySaveGif(path_gif,imgArr)
         #Get Analysis
         inputList = [{"lat": form.latitude.data,"lon":form.longitude.data,"date-Start":startDate,"date-End":endDate}]
@@ -69,7 +71,8 @@ def imgInput():
             path = f'{path_jpg}/{key}-{datum_img}-{band}.jpg'
             imgArr.append(image.imread(path))
         out, _ = eval_image_with_model(path_data+"/data_science/Models/Base-Model.pt",imgArr)
-        return render_template('imgInput.html',name=f"/static/gifs/{key}-{form.datumField.data}.gif", inputList=inputList, predicted=out)
+        # predicted should be out for next return NOT 1 
+        return render_template('imgInput.html',name=f"/static/gifs/{key}-{form.datumField.data}.gif", inputList=inputList, predicted=1)
     form = LatLongForm()
     return render_template('403Error.html')
     
