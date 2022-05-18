@@ -1,4 +1,5 @@
 from tkinter import Image
+from matplotlib import pyplot as plt
 import pandas as pd
 import torch
 from training import validateHeights
@@ -8,6 +9,7 @@ from torchvision import models
 
 from SatelliteTurbinesDataset import ImageDataset, Net
 import torchvision.transforms as transforms
+from torchvision.transforms import functional
 import torch.optim as optim
 # from torch.utils.tensorboard import SummaryWriter
 # writer = SummaryWriter('runs/SW-Model-Turbines')
@@ -15,17 +17,22 @@ import torch.optim as optim
 import torch.nn as nn
 path_data = 'C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/Data'
 turbine_data = path_data +"/data_science/CSV/Sentinel-2-WindTurbineData.csv"
-path_jpg = f'{path_data}/data_science/img_database'
+path_jpg = f'{path_data}/data_science/AllImages'
 path_unspinned = f'{path_data}/data_science/not_spinning_images'
 csvPath = path_data + "/data_science/CSV/"
 path_gif = f'{path_data}/Satellite/GIF'
 
 
-TestSet = path_data + "/data_science/CSV/TestSet.csv"
-TrainSet = path_data + "/data_science/CSV/TrainSet.csv"
+# TestSet = path_data + "/data_science/CSV/TestSet.csv"
+# TrainSet = path_data + "/data_science/CSV/TrainSet.csv"
+depth = 20
+#TrainSet = "Data\data_science\CSV\TrainSet.csv"
+newTrain = "Data/data_science/CSV/NewUndetectedComparison/train-2000.csv"
+newTest = "Data/data_science/CSV/NewUndetectedComparison/test-2000.csv"
+#TestSet = "Data\data_science\CSV\TestSet.csv"
 #sort 1 csv into 3 csvs
 
-
+path_undetected = "Data/data_science/No_Turbines_images"
 #display_data(turbine_data)
 # go through the good quality Data and convert it into still wind turbines
 #
@@ -46,16 +53,15 @@ def train_and_validate(path_train_set,path_test_set,path_images,BATCH_SIZE, pret
 
 
     #transform for pretrainedNets
-    # transform =transforms.Compose([transforms.ToPILImage(),
-    #                 transforms.Resize(255),
-    #                 transforms.CenterCrop(224),
-    #                 transforms.ToTensor(),
-    #                 transforms.Normalize([0.485,0.456,0.406],[0.229,0.224,0.225])]
-    #             )
-    transform = transforms.Compose([transforms.ToPILImage(),transforms.Resize((25,25)),transforms.CenterCrop((10,10)),transforms.ToTensor()])
+    transform =transforms.Compose([transforms.ToPILImage(),
+                    transforms.Resize(255),
+                    transforms.CenterCrop(224),
+                    transforms.ToTensor(),
+                    transforms.Normalize([0.485,0.456,0.406],[0.229,0.224,0.225])]
+                )
+    #transform = transforms.Compose([transforms.ToPILImage(),transforms.Resize((40,40)),transforms.ToTensor()])
     train_dataset=ImageDataset(trainSet,path_images,transform)
     val_dataset=ImageDataset(testSet,path_images,transform)
-
     #height datasets
     # tiny_set = ImageDataset(heightSetTiny,path_images,transform)
     # small_set = ImageDataset(heightSetSmall,path_images,transform)
@@ -88,24 +94,24 @@ def train_and_validate(path_train_set,path_test_set,path_images,BATCH_SIZE, pret
     #Loading 
 
     #Old Classifier: 
-    #model = models.densenet121(pretrained=False)
-    # model.classifier = nn.Sequential(nn.Linear(1024,512),
-    # nn.ReLU(),nn.Dropout(0.2),nn.Linear(512,256),nn.ReLU(),nn.Dropout(0.1),nn.Linear(256,2))
+    model = models.densenet121(pretrained=True)
+    model.classifier = nn.Sequential(nn.Linear(1024,512),
+    nn.ReLU(),nn.Dropout(0.2),nn.Linear(512,256),nn.ReLU(),nn.Dropout(0.1),nn.Linear(256,2))
     # print(model.classifier)
-    # model.to(device=device)
-    model = Net().to(device = device) 
+    model.to(device=device)
+    #model = Net().to(device = device) 
     # if(pretrainedModelPath != ""):
     #     model.load_state_dict(torch.load(pretrainedModelPath))
 
 
     #Training
 
-    optimizer = optim.Adam(model.parameters(), lr=0.0016) 
+    optimizer = optim.SGD(model.parameters(), lr=0.005) 
     loss_fn = nn.CrossEntropyLoss()
-    name = "Base-Model"
+    name = f"Model-pretrained-dense-cropped-{str(depth)}"
     print(sum(p.numel() for p in model.parameters()))
     training_loop(
-    n_epochs = 100,
+    n_epochs = 50,
     optimizer = optimizer,
     model = model,
     loss_fn = loss_fn,
@@ -113,7 +119,7 @@ def train_and_validate(path_train_set,path_test_set,path_images,BATCH_SIZE, pret
     device=device,
     name=name,
     val=val_loader,
-    path_save="Data/data_science/CSV/baseModel.csv"
+    path_save=f"Data/data_science/CSV/NewUndetectedComparison/Model-New-Undetected-cropped-20.csv"
     )
     torch.save(model.state_dict(),path_data+f"/data_science/Models/{name}.pt")
     #validateHeights(model,tiny,small,medium,large,xLarge,device)
@@ -141,6 +147,6 @@ def select_n_random(data, labels, n=100):
         perm = torch.randperm(len(data))
         return data[perm][:n], labels[perm][:n]
         
-train_and_validate(TrainSet,TestSet,path_jpg,16, path_data+"/data_science/Models/Sentinel_2_pretrained-Dense.pt")
+train_and_validate(newTrain,newTest,path_jpg,8, path_data+"/data_science/Models/Sentinel_2_pretrained-Dense.pt")
 
 

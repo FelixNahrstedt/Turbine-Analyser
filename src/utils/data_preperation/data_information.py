@@ -4,6 +4,7 @@ import imageio
 import pandas as pd
 import numpy as np
 from PIL import Image
+from sklearn.model_selection import train_test_split
 import csv
 import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
@@ -46,6 +47,10 @@ def evaluate_images(path_images, id, date, bands):
     for band in bands:
         img_Band_arr.append(imageio.imread(f'{path_images}/{id}-{date}-{band}.jpg'))
     maxMeanBright, maxStdBright = maxMeanBrightness(img_Band_arr)
+    obj = img_plots(path_images,id,bands,date)
+    histArr = obj.histogram_matching(img_Band_arr)
+    for idx,band in enumerate(bands):
+        imageio.imsave(f'{path_images}/Matched-{id}-{date}-{band}.jpg',histArr[idx])
     return maxMeanBright, maxStdBright, img_Band_arr
 def NormalizeData(data):
     return (data - np.min(data)) / (np.max(data) - np.min(data))
@@ -101,12 +106,16 @@ def display_data(path_data):
 
 
     fig = plt.figure(figsize = (8,6))
-    
+    plt.title('Relationships Shadow Recognizability')
+    plt.ylabel('standard deviation')
+    plt.xlabel('mean')
     # Create Plot
+    plt.scatter(np.asarray(goodQual).astype(np.float16), NormalizeData(np.asarray(goodQual2).astype(np.float16)), s=2, color='green',label='Good Quality')
+    plt.scatter(np.asarray(medQual1).astype(np.float16),  NormalizeData(np.asarray(medQual2).astype(np.float16)),  s=2, color='blue',label='Medium Quality')
+    plt.scatter(np.asarray(badQual1).astype(np.float16),  NormalizeData(np.asarray(badQual2).astype(np.float16)), s=2, color='red',label='Bad Quality')
+    plt.legend(loc='lower right')
+    plt.savefig("C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/Data/data_science/PLOTS/Relationships_Shadow_Recognizability.png")
 
-    plt.scatter(np.asarray(goodQual).astype(np.float16), NormalizeData(np.asarray(goodQual2).astype(np.float16)), s=10, color='green')
-    plt.scatter(np.asarray(medQual1).astype(np.float16),  NormalizeData(np.asarray(medQual2).astype(np.float16)),  s=3, color='blue')
-    plt.scatter(np.asarray(badQual1).astype(np.float16),  NormalizeData(np.asarray(badQual2).astype(np.float16)), s=3, color='red')
 
     # Show plot
 
@@ -204,66 +213,96 @@ def unspin_turbines(path_data, path_jpg,path_unspinned):
         #convertTransform.saveToGif(path_jpg,imgArr)
         convertTransform.saveGrayScaleFromRGB(path_unspinned,imgArr,fakeFile,bands)
 
-def createSubCsv(turbine_data, csvData):
-    subsetSize = 1600
+def createSubCsv(turbine_data,undetectedData,csvPath,subsetSize = 1600 ):
     header = ['id', 'latitude','longitude','label','quality','max_mean-bright', 'max_std_bright', 'date','region']
     #not_spinning = csvData+"not_spinning.csv"
-    spinning = csvData+"spinning-2class.csv"
-    undetected = csvData+"undetected-2class.csv"
+    spinningAndUndetectedNew = csvPath + "spinningAndUndetectedNew-"+str(subsetSize)+".csv"
+    # spinningTest = csvPath + "spinTest-"+str(subsetSize)+".csv"
+
+    # undetected = csvPath+ "undetected-"+str(subsetSize)+".csv"
+    # undetectedTest = csvPath+ "undetectedTest-"+str(subsetSize)+".csv"
+
 
     #createCsv(not_spinning, header)
-    createCsv(spinning, header)
-    createCsv(undetected, header)
+    createCsv(spinningAndUndetectedNew, header)
+    # createCsv(spinningTest, header)
+
+    # createCsv(undetected, header)
+    # createCsv(undetectedTest, header)
+
 
     file = open(turbine_data)
+    fileUndetected = open(undetectedData)
     csvreader = csv.reader(file)
-    header = []
-    header = next(csvreader)
-    rows = []
+    csvreaderUndetected = csv.reader(fileUndetected)
+    rowsSpin = []
+    rowsUndetected = []
+    
     for row in csvreader:
-        rows.append(row)
+        if(row[0]!="id"):
+            rowsSpin.append(row)
+    for row in csvreaderUndetected:
+        rowsUndetected.append(row)
     file.close()
-    print(len(rows))
+    fileUndetected.close()
+    print(len(rowsSpin))
     spines = 0
-    #nospins = 0
+    spinesTest = 0
     undetectedes =0
-    print(header)
-    for row in rows:
+    undetectedesTest = 0
+    for row in rowsUndetected:
+        if(undetectedes < subsetSize):
+            undetectedes +=1
+            appendCsv_open(spinningAndUndetectedNew, row)
+    for row in rowsSpin:
         if(row[3] == '0' and (int(row[4])<4)):
+            
             if(spines < subsetSize):
                 spines = spines +1
                 #append date and ID for later image loading
-                appendCsv_open(spinning,row)
+                appendCsv_open(spinningAndUndetectedNew,row)
             # if(row[4] == '1' or row[4] == '2'):
             #     if(nospins<subsetSize):
             #         nospins = nospins+1
             #         row[0] = row[0]+"-unspin"
             #         row[3] = 1
             #         appendCsv_open(not_spinning,row)
+            # elif(spinesTest<750):
+            #     spinesTest +=1
+            #     appendCsv_open(spinningTest,row)
 
-        if(row[3] == '2'):
-            if(undetectedes<subsetSize):
-                undetectedes = undetectedes +1
-                appendCsv_open(undetected,row)
+        # if(row[3] == '2'):
+        #     if(undetectedes<subsetSize):
+        #         undetectedes = undetectedes +1
+        #         appendCsv_open(undetected,row)
+        #     elif(undetectedesTest<750):
+        #         undetectedesTest +=1
+        #         appendCsv_open(undetectedTest,row)
         # if(row[3] == '1'):
         #     if(nospins<1064):
         #         nospins = nospins +1
         #         appendCsv_open(not_spinning,row)
-    
+    print(spines,undetectedes)
+    pathTrain = csvPath+"train-"+str(subsetSize)+".csv"
+    pathTest = csvPath+"test-"+str(subsetSize)+".csv"
+    csvToTrainTest(spinningAndUndetectedNew,pathTrain,pathTest)
+    #return train, test
     #print(spines, nospins, undetectedes)
-    return spinning, undetected
+    #return spinning,spinningTest, undetected,undetectedTest
 
-def splitTrainTest(spinningCsv,UndetectedCsv, TrainCsv, TestCsv,notSpinningCsv=""):
+def splitTrainTest(spinningCsv,spinningTestCsv,UndetectedCsv,UndetectedTestCsv, TrainCsv, TestCsv,notSpinningCsv="",size=1600):
     csvreader = csv.reader(spinningCsv)
 
-    dfSpinTrain,dfSpinTest = csvToTrainTest(spinningCsv)
+    dfSpinTrain = pd.read_csv(spinningCsv)
+    dfSpinTest = pd.read_csv(spinningTestCsv)
+    dfUndetectedTrain =  pd.read_csv(UndetectedCsv)
     #dfNoSpinTrain,dfNoSpinTest = csvToTrainTest(notSpinningCsv)
-    dfUndetectedTrain,dfUndetectedTest = csvToTrainTest(UndetectedCsv)
+    dfUndetectedTest =  pd.read_csv(UndetectedTestCsv)
     
     dfTrain = pd.concat([dfSpinTrain,dfUndetectedTrain])
     dfTest = pd.concat([dfSpinTest,dfUndetectedTest])
     print(f"Train: {len(dfTrain)}")
-    print(f"Train: {len(dfTest)}")
+    print(f"Test: {len(dfTest)}")
 
     #shuffle
     dfTrainShuffled = dfTrain.sample(frac=1)
@@ -272,15 +311,11 @@ def splitTrainTest(spinningCsv,UndetectedCsv, TrainCsv, TestCsv,notSpinningCsv="
     dfTestShuffled.to_csv(TestCsv, index=False)
 
 
-def csvToTrainTest(filePath):
-    data = pd.read_csv(filePath)
-    data['split'] = np.random.randn(data.shape[0], 1)
-
-    rng = RandomState()
-
-    train = data.sample(frac=0.8, random_state=rng)
-    test = data.loc[~data.index.isin(train.index)]  
-    print(f"Train: {len(train)}")
-    print(f"Test: {len(test)}")
-    return train, test
+def csvToTrainTest(filePath, newTrainPath, newTestPath):
+    df = pd.read_csv(filePath)
+    df = df.sample(frac=1).reset_index(drop=True)
+    train=df.sample(frac=0.8,random_state=200) #random state is a seed value
+    test=df.drop(train.index)
+    train.to_csv(newTrainPath, index=False)
+    test.to_csv(newTestPath, index=False)    
     

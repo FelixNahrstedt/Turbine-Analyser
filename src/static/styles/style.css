@@ -158,6 +158,10 @@ form:before {
 .backgroundGray{
     background-color: rgb(181, 181, 181);
 }
-.centerImage{
-    
+.resizeImg{
+    object-fit:contain;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
 }

@@ -20,8 +20,15 @@
     </div>
     <div class="clear"></div>
 </div>
-<div>
-    <img class="center" src="/static/gifs/heatmap.png" width="50%"/>
-</div>
+<div class="container">
+    <!-- Columns are always 50% wide, on mobile and desktop -->
+    <div class="row">
+        <div class="col-12"><h2 style="text-align: center;">Cropped Image in color<!--and it's Heatmap of highest pixel contribution to detection of Motion--></h1></div>
 
+      </div>
+       <div class="row">
+         <div class="col-12"><img class="resizeImg" src="/static/gifs/color.png" /></div>
+         <!--<div class="col-6"><img class="resizeImg" src="/static/gifs/heatmap.png" /></div>-->
+       </div>
+   </div>
 {% endblock %}

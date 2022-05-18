@@ -145,3 +145,5 @@ after changing spinning images with quality 1 or 2 into unspinning images, the n
 
 Normales Modell: 
 
+Test on:
+49,587181, 7,639779 at 04.10.2020

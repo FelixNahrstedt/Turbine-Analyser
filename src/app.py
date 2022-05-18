@@ -19,6 +19,7 @@ import torch.nn as nn
 from utils.model.SatelliteTurbinesDataset import Net
 
 path_data = 'C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/Data'
+path_base = 'C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/'
 path_tiffs = f'{path_data}/Tiffs'
 path_jpg = f'{path_data}/Satellite/JPG'
 path_gif = f'C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/src/static/gifs'
@@ -61,18 +62,18 @@ def imgInput():
         if(startDate==False):
             return render_template('index.html', form=LatLongForm(), error="Could not find usable Images around that Time/Location!")
         _maxMeanBrightness, _maxStdBrightness, imgArr = evaluate_images(path_jpg,key,form.datumField.data,bands)
-        cv2.imwrite('src/static/staticImg/myImage.png',cv2.merge([imgArr[0],imgArr[1],imgArr[2]]))
+        newArr = list(np.array(imgArr)[:,20:40,10:30])
+
+        cv2.imwrite('src/static/gifs/color.png',cv2.merge([newArr[0],newArr[1],newArr[2]]))
+        
         converter.onlySaveGif(path_gif,imgArr)
         #Get Analysis
         inputList = [{"lat": form.latitude.data,"lon":form.longitude.data,"date-Start":startDate,"date-End":endDate}]
 
-        imgArr = []
-        for band in bands:
-            path = f'{path_jpg}/{key}-{datum_img}-{band}.jpg'
-            imgArr.append(image.imread(path))
-        out, _ = eval_image_with_model(path_data+"/data_science/Models/Base-Model.pt",imgArr)
+        out, _ = eval_image_with_model(path_data+"/data_science/Models/Model-pretrained-dense-cropped-20.pt",imgArr, path_base)
+        
         # predicted should be out for next return NOT 1 
-        return render_template('imgInput.html',name=f"/static/gifs/{key}-{form.datumField.data}.gif", inputList=inputList, predicted=1)
+        return render_template('imgInput.html',name=f"/static/gifs/{key}-{form.datumField.data}.gif", inputList=inputList, predicted=out)
     form = LatLongForm()
     return render_template('403Error.html')
     

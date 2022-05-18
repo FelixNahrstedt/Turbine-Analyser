@@ -27,7 +27,7 @@ def training_loop(n_epochs, optimizer:optim.Optimizer, model, loss_fn, train_loa
             total += labels.shape[0]                 
             correct += int((predicted == labels).sum())
 
-        if epoch == 1 or epoch % 5 == 0:
+        if epoch % 2 == 0:
             # print('{} Epoch {}, Training loss {}'.format(
             # datetime.now(), epoch,
             # loss_train / len(train_loader)))
