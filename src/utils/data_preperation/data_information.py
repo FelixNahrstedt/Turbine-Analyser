@@ -114,7 +114,7 @@ def display_data(path_data):
     plt.scatter(np.asarray(medQual1).astype(np.float16),  NormalizeData(np.asarray(medQual2).astype(np.float16)),  s=2, color='blue',label='Medium Quality')
     plt.scatter(np.asarray(badQual1).astype(np.float16),  NormalizeData(np.asarray(badQual2).astype(np.float16)), s=2, color='red',label='Bad Quality')
     plt.legend(loc='lower right')
-    plt.savefig("C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/Data/data_science/PLOTS/Relationships_Shadow_Recognizability.png")
+    plt.savefig("Data/data_science/PLOTS/Relationships_Shadow_Recognizability.png")
 
 
     # Show plot

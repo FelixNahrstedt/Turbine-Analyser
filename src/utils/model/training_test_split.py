@@ -1,12 +1,12 @@
 import sys
 import os
 #from data_information import createSubCsv, splitTrainTest
-sys.path.append("C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/src")
+sys.path.append("src")
 
 from utils.data_preperation.data_information import createSubCsv,splitTrainTest
 
 
-path_data = 'C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/Data'
+path_data = 'Data'
 
 turbine_data = path_data +"/data_science/CSV/raw-Data/Sentinel-2-WindTurbineData.csv"
 path_jpg = f'{path_data}/data_science/img_database'

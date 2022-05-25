@@ -112,6 +112,6 @@ def get_Locations_of_Country(path):
     plt.axis('equal')
     plt.show()
     #print(f'Above 100 Meters are {higherhundret} and lower are {lower}')
-path = "C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/Data/locations"
+path = "Data/locations"
 #loop_through_Bund(path)
 get_Locations_of_Country(path)

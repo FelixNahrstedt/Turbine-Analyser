@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from flask_wtf import FlaskForm
 import pandas as pd
 from parso import split_lines
@@ -84,3 +85,34 @@ class LatLongForm(FlaskForm):
 #         print("help")
 #     else:
 #         print("no")
+
+# def shortenCsvData():
+#     df = pd.read_csv("Data/data_science/CSV/raw-Data/wind-farm-1-signals-testing.csv", sep=";")
+#     turbines = [""]
+#     df = df[df["Gen_RPM_Max"]==0]
+#     turbines = set(df["Turbine_ID"])
+#     li = sorted(turbines)
+
+#     for turbine in turbines:
+#         a = df[df["Turbine_ID"]==turbine]
+#         times = a["Timestamp"]
+#         times = set(times)
+#         times = sorted(times)
+#         newTimes = []
+#         doubles = []
+#         for time in times:
+#             d = datetime.fromisoformat(time).astimezone(timezone.utc)
+#             d = d.strftime('%Y-%m-%d')
+#             if(time in newTimes):
+#                 doubles.append(d)
+#             else:
+#                 newTimes.append(d)
+#         print(str(turbine) +": "+ str(len(a))+" Amount of Timestamps: "+str(len(times)))
+#         print("Failure data from the same day: " +str(len(doubles)))
+#         print("Failure data not from the same day: " +str(len(newTimes)))
+
+#     #df = df[df["Gen_RPM_Max"]==0]
+#     print(len(df))
+#     print(li)
+
+# shortenCsvData()

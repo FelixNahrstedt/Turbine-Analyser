@@ -8,9 +8,9 @@ from utils.data_labeling.empty_Data import deleteImages
 from utils.data_labeling.load_data import import_json
 
 #Constants
-path_data = 'C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/Data'
+path_data = 'Data'
 path_tiffs = f'{path_data}/Tiffs'
-path_jpg = f'Data/data_science/No_Turbines_images'
+path_jpg = f'{path_data}/data_science/No_Turbines_images'
 path_gif = f'{path_data}/Satellite/GIF'
 loadProgress = path_data + "/data_science/CSV/zwischenspeicher.csv"
 bands = ['B2','B3','B4']

@@ -11,7 +11,7 @@ from utils.data_labeling.load_data import import_json
 from utils.data_collection.img_plots import img_plots
 
 
-path_data = 'C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/Data'
+path_data = 'Data'
 path_jpg = f'{path_data}/data_science/img_database'
 #path_locations = f'{path_data}/locations'
 path_gif = f'{path_data}/Satellite/GIF'

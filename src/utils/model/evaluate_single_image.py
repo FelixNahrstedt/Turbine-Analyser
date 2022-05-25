@@ -1,3 +1,4 @@
+import math
 import cv2
 import matplotlib
 
@@ -8,6 +9,8 @@ from cv2 import waitKey
 from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
 import torch
+import matplotlib.ticker as ticker
+from torchvision.utils import save_image
 from PIL import Image
 import torch.nn as nn
 from captum.attr import IntegratedGradients
@@ -20,7 +23,7 @@ import seaborn as sns
 from captum.attr import visualization as viz
 import torchvision.transforms as transforms
 from torchvision import models
-def eval_image_with_model(path_to_model, imgArr, basePath, pretrained = True):
+def eval_image_with_model(path_to_model, path_heatmap,path_overlay, imgArr, pretrained = True):
     transform=transforms.Compose([transforms.ToPILImage(),
                     transforms.Resize(255),
                     transforms.CenterCrop(224),
@@ -37,15 +40,15 @@ def eval_image_with_model(path_to_model, imgArr, basePath, pretrained = True):
     item = item[:,20:40,10:30]
     if(pretrained):
         item = transform(item)
-    classes, out = run_inference(item.to(device=device),device,path_to_model, basePath=basePath)
-    return classes, out
+    classes, out, probs = run_inference(item.to(device=device),device,path_to_model,path_heatmap,path_overlay)
+    return classes, out, probs
 
-def run_inference(in_tensor, device, modelPath, basePath, pretrained = True):
+def run_inference(in_tensor, device, modelPath,path_heatmap,path_overlay, pretrained = True):
     classes = ["spinning", "undetected"]
 
     model = models.densenet121(pretrained=True)
     model.classifier = nn.Sequential(nn.Linear(1024,512),
-    nn.ReLU(),nn.Dropout(0.2),nn.Linear(512,256),nn.ReLU(),nn.Dropout(0.1),nn.Linear(256,2))
+    nn.ReLU(),nn.Dropout(0.2),nn.Linear(512,256),nn.ReLU(),nn.Dropout(0.1),nn.Linear(256,2),nn.Sigmoid())
     model.to(device=device)
     #model = Net().to(device = device) 
 
@@ -60,24 +63,45 @@ def run_inference(in_tensor, device, modelPath, basePath, pretrained = True):
         #we use notOut in order to reverse the heatmap and get the sureness of uncertainty
         if(pretrained==False):
             heatmap = occlusion(model,in_tensor.unsqueeze(0),out)
-            mean, std, var = torch.mean(heatmap), torch.std(heatmap), torch.var(heatmap)
-            heatmap = (heatmap-mean)/std
             ax = sns.heatmap(heatmap, xticklabels=False, yticklabels=False,vmax=1,vmin=0)
             figure = ax.get_figure()
             plt.figure()
-            figure.savefig(basePath +"src/static/gifs/heatmap.png")
-        # else: 
-        #     heatmap = occlusion(model,in_tensor.unsqueeze(0),out,180,6)
-        #     mean, std, var = torch.mean(heatmap), torch.std(heatmap), torch.var(heatmap)
-        #     heatmap = (heatmap-mean)/std
-        #     ax = sns.heatmap(heatmap, xticklabels=True, yticklabels=True,vmax=1,vmin=0)
-        #     figure = ax.get_figure()
-        #     plt.figure()
-        #     figure.savefig(basePath +"src/static/gifs/heatmap.png")
-        model.train()
-        return classes[out], out
+            figure.savefig(path_heatmap)
+        else: 
+            origWidth, origHeight = in_tensor.unsqueeze(0).shape[-2], in_tensor.unsqueeze(0).shape[-1]
+            occ = 85
+            stride = 9
+            heatmap, ho,wo,img = occlusion(model,in_tensor.unsqueeze(0),out,occ,stride)
+            img = torch.squeeze(img.to(device="cpu"))
+            v_min, v_max = img.min(), img.max()
+            new_min, new_max = 0, 1
+            img = (img - v_min)/(v_max - v_min)*(new_max - new_min) + new_min
+            save_image(img,path_overlay)
+            heatmap = heatmap.numpy()
+            #width = [round((element/wiNo), 1) for element in width]
+            x = []
+            my_xticks = []
+            for i in range(0,9):
+                x.append(28*i)
+                my_xticks.append(2.5*i)
+            len(x)
+            #height = [round((element/wiNo), 1) for element in height]
+            ax = plt.imshow(heatmap, cmap='hot', interpolation='nearest')
+            plt.xticks(x, my_xticks)
+            plt.yticks(x, my_xticks)
 
-def occlusion(model, image, label, occ_size = 9, occ_stride = 1, occ_pixel = 127):
+            #ax = sns.heatmap(heatmap, xticklabels=width, yticklabels=height)
+            
+
+            figure = ax.get_figure()
+            plt.figure(figsize=(20, 20))
+            figure.savefig(path_heatmap)
+            
+            
+        model.train()
+        return classes[out], out, probs
+
+def occlusion(model, image, label, occ_size = 9, occ_stride = 1, occ_pixel = 0):
     # occ_size = 50, occ_stride = 50, occ_pixel = 0.5
     #get the width and height of the image
     width, height = image.shape[-2], image.shape[-1]
@@ -86,11 +110,19 @@ def occlusion(model, image, label, occ_size = 9, occ_stride = 1, occ_pixel = 127
     output_height = int(np.ceil((height-occ_size)/occ_stride))
     output_width = int(np.ceil((width-occ_size)/occ_stride))
     #create a white image of sizes we defined
-    heatmap = torch.zeros((output_height,output_width))
+    print(height, width)
+    #print(output_height,output_width)
+
+    heatmap = torch.full((height,width),-1.0)
     model.eval()
+    minprob = 1
+    img = image.clone().detach()
     #iterate all the pixels in each column
+    # saveRow = []
+    # saveCol = []
     for h in range(0, height):
         if(min(height, h*occ_stride + occ_size) >= height):
+            #saveRow.append(h)
             continue
         for w in range(0, width):
             h_start = h*occ_stride
@@ -98,7 +130,8 @@ def occlusion(model, image, label, occ_size = 9, occ_stride = 1, occ_pixel = 127
             h_end = min(height, h_start + occ_size)
             w_end = min(width, w_start + occ_size)
             
-            if (w_end) >= width or (h_end) >= height:
+            if (w_end) >= width:
+                #saveCol.append(w)
                 continue
             
             input_image = image.clone().detach()
@@ -111,6 +144,15 @@ def occlusion(model, image, label, occ_size = 9, occ_stride = 1, occ_pixel = 127
                 probab = output.tolist()
                 #wie steht der eine Output im verhältnis zum anderen?
                 #setting the heatmap location to probability value
-            heatmap[h,w] = probab[label] 
+                if(probab[label]<minprob):
+                    img = input_image.clone().detach()
+                heatmap[((h_start+h_end)//2-(occ_stride//2)):((h_start+h_end)//2+(occ_stride//2)),(w_start+w_end)//2-(occ_stride//2):(w_start+w_end)//2+(occ_stride//2)] += probab[label]
+                # noLabel = 0
+                # if(label == 0):
+                #     noLabel = 1
+                # if(probab[noLabel]>probab[label]):
+                #     heatmap[h,w] = probab[label] 
+                # else:
+                #     heatmap[h,w] = 1
     model.train()
-    return heatmap
+    return heatmap,output_height,output_width,img

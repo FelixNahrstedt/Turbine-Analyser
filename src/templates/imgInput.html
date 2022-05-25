@@ -13,6 +13,9 @@
     {% for data in inputList %}
         <h2>Datespan: : {{ data['date-Start'] }} - {{ data['date-End'] }} </h2> 
         {% endfor %} 
+    {% for data in inputList %}
+        <h2 >Spinning: {{ data['spin'] }}% </h2> 
+        {% endfor %}
      <h2>The KI says: {{predicted}}</h2>   
         </div>  
     <div class="right-picture">
@@ -20,15 +23,22 @@
     </div>
     <div class="clear"></div>
 </div>
+
 <div class="container">
     <!-- Columns are always 50% wide, on mobile and desktop -->
     <div class="row">
         <div class="col-12"><h2 style="text-align: center;">Cropped Image in color<!--and it's Heatmap of highest pixel contribution to detection of Motion--></h1></div>
-
       </div>
        <div class="row">
-         <div class="col-12"><img class="resizeImg" src="/static/gifs/color.png" /></div>
-         <!--<div class="col-6"><img class="resizeImg" src="/static/gifs/heatmap.png" /></div>-->
+        {% for data in inputList %}
+         <div class="col-4"><img class="resizeImg" src={{pathcolor}} /></div>
+         <div class="col-4"><img  class="resizeImg"  src={{heatmap}} /></div>
+         <div class="col-4"><img  class="resizeImg"  src={{overlay}} /></div>
+         {% endfor %}
+       </div>
+       <div class="row">
+        <div class="col-12"><iframe style="width:100%" class="map", src="/map" ></iframe></div>
        </div>
    </div>
+   
 {% endblock %}

@@ -15,7 +15,7 @@ import torch.optim as optim
 # writer = SummaryWriter('runs/SW-Model-Turbines')
 
 import torch.nn as nn
-path_data = 'C:/Users/fe-na/OneDrive/Dokumente/0 - Meine Dateien/Umweltinformatik/Eigene Projekte/Machine Learning/pytorch/sentinel-2-bewegungserkennung/Data'
+path_data = 'Data'
 turbine_data = path_data +"/data_science/CSV/Sentinel-2-WindTurbineData.csv"
 path_jpg = f'{path_data}/data_science/AllImages'
 path_unspinned = f'{path_data}/data_science/not_spinning_images'
