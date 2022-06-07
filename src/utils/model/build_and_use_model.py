@@ -1,15 +1,11 @@
-from tkinter import Image
-from matplotlib import pyplot as plt
 import pandas as pd
 import torch
-from training import validateHeights
 from training import training_loop
 from training import validate
 from torchvision import models
 
-from SatelliteTurbinesDataset import ImageDataset, Net
+from SatelliteTurbinesDataset import ImageDataset
 import torchvision.transforms as transforms
-from torchvision.transforms import functional
 import torch.optim as optim
 # from torch.utils.tensorboard import SummaryWriter
 # writer = SummaryWriter('runs/SW-Model-Turbines')

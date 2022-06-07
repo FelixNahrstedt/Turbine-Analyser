@@ -1,9 +1,8 @@
 import sys
-import os
 #from data_information import createSubCsv, splitTrainTest
 sys.path.append("src")
 
-from utils.data_preperation.data_information import createSubCsv,splitTrainTest
+from utils.data_preperation.data_information import createSubCsv
 
 
 path_data = 'Data'

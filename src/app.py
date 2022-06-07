@@ -1,28 +1,15 @@
 from datetime import date
-import sys
 import cv2
 from matplotlib import image, pyplot as plt
 import numpy as np
-import overpy
-import io
-from PIL import Image
-from flask import Flask, redirect, render_template, jsonify, url_for, request
-import torch
-import torchvision.transforms as transforms
+from flask import Flask, redirect, render_template, url_for, request
 from utils.model.evaluate_single_image import eval_image_with_model
-from utils.model.evaluate_single_image import run_inference
 from utils.data_preperation.data_information import evaluate_images
 from utils.data_labeling.empty_Data import deleteGiffs, deleteImages
 from utils.data_collection.convert import convert_img
 from utils.data_collection.download_Satellite_tiff import image_preparation
 from forms import LatLongForm
-from torchvision import models
 import folium
-from folium.plugins import MarkerCluster
-import pandas as pd
-import torch.nn as nn
-
-from utils.model.SatelliteTurbinesDataset import Net
 
 path_data = 'Data/'
 path_base = ''
@@ -67,16 +54,23 @@ def imgInput():
         if(startDate==False):
             return render_template('index.html', form=LatLongForm(), error="Could not find usable Images around that Time/Location!")
         _maxMeanBrightness, _maxStdBrightness, imgArr = evaluate_images(path_jpg,key,form.datumField.data,bands)
-        newArr = np.array(imgArr)[:,20:40,10:30]
+        
+        newArr = np.array(imgArr.copy())[:,20:40,10:30]
         savePara = list(newArr)
         ax = plt.imshow(cv2.merge([savePara[2],savePara[1],savePara[0]]))
         figure = ax.get_figure()
         path_color = f'static/gifs/color-{str(int(form.latitude.data*1000))}-{str(int(form.longitude.data*1000))}.jpg'
+        path_colorFull = f'static/gifs/colorFull-{str(int(form.latitude.data*1000))}-{str(int(form.longitude.data*1000))}.jpg'
+
         path_paraNo = f'static/gifs/color-{str(int(form.latitude.data*1000))}-{str(int(form.longitude.data*1000))}-NO.jpg'
         path_paraSo = f'static/gifs/color-{str(int(form.latitude.data*1000))}-{str(int(form.longitude.data*1000))}-SO.jpg'
         path_heatmap = f"static/gifs/heatmap-{str(int(form.latitude.data*1000))}-{str(int(form.longitude.data*1000))}.png"
-        path_overlay = f"/static/staticImg/overlayMaxImg-{str(int(form.latitude.data*1000))}-{str(int(form.longitude.data*1000))}.png"
+        path_overlay = f"/static/gifs/overlayMaxImg-{str(int(form.latitude.data*1000))}-{str(int(form.longitude.data*1000))}.png"
         figure.savefig("src/"+path_color)
+
+        ax2 = plt.imshow(cv2.merge([imgArr[2],imgArr[1],imgArr[0]]))
+        figure2 = ax2.get_figure()
+        figure2.savefig("src/"+path_colorFull)
         
         parallaxRegion1 = [19]
         parallaxRegion2 = [19]

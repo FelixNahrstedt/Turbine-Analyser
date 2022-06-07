@@ -1,7 +1,5 @@
 import csv
 from datetime import datetime
-import enum
-from torch.utils.tensorboard import SummaryWriter
 import torch
 import torch.optim as optim
 

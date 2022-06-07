@@ -1,9 +1,6 @@
 
 #constants:
-import datetime
-from email.mime import base
-from lib2to3.pgen2.token import NEWLINE
-from utils.data_preperation.data_information import appendCsv, appendCsv_open
+
 from utils.data_collection.convert import convert_img
 from utils.data_preperation.data_information import evaluate_images
 from utils.data_labeling.empty_Data import deleteGiffs

@@ -5,7 +5,6 @@ from utils.data_collection.convert import convert_img
 
 from utils.data_collection.download_Satellite_tiff import image_preparation
 from utils.data_labeling.empty_Data import deleteImages
-from utils.data_labeling.load_data import import_json
 
 #Constants
 path_data = 'Data'

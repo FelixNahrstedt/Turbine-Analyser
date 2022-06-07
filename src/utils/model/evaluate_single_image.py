@@ -1,26 +1,12 @@
-import math
 import cv2
 import matplotlib
-
-from utils.model.SatelliteTurbinesDataset import Net
 matplotlib.use('Agg')
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from cv2 import waitKey
-from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
 import torch
-import matplotlib.ticker as ticker
 from torchvision.utils import save_image
-from PIL import Image
 import torch.nn as nn
-from captum.attr import IntegratedGradients
-from captum.attr import GradientShap
-from torch.nn.functional import normalize
-from captum.attr import Occlusion
-from captum.attr import NoiseTunnel
 import matplotlib.pyplot as plt
 import seaborn as sns
-from captum.attr import visualization as viz
 import torchvision.transforms as transforms
 from torchvision import models
 def eval_image_with_model(path_to_model, path_heatmap,path_overlay, imgArr, pretrained = True):
@@ -69,33 +55,37 @@ def run_inference(in_tensor, device, modelPath,path_heatmap,path_overlay, pretra
             figure.savefig(path_heatmap)
         else: 
             origWidth, origHeight = in_tensor.unsqueeze(0).shape[-2], in_tensor.unsqueeze(0).shape[-1]
-            occ = 85
+            #(origWidth/20) = 10m turbine = 
+            occ = int((origWidth/20)*7)
             stride = 9
             heatmap, ho,wo,img = occlusion(model,in_tensor.unsqueeze(0),out,occ,stride)
-            img = torch.squeeze(img.to(device="cpu"))
-            v_min, v_max = img.min(), img.max()
-            new_min, new_max = 0, 1
-            img = (img - v_min)/(v_max - v_min)*(new_max - new_min) + new_min
-            save_image(img,path_overlay)
+            print(ho,wo)
             heatmap = heatmap.numpy()
             #width = [round((element/wiNo), 1) for element in width]
             x = []
             my_xticks = []
-            for i in range(0,9):
+            for i in range(0,8):
                 x.append(28*i)
                 my_xticks.append(2.5*i)
-            len(x)
             #height = [round((element/wiNo), 1) for element in height]
             ax = plt.imshow(heatmap, cmap='hot', interpolation='nearest')
             plt.xticks(x, my_xticks)
             plt.yticks(x, my_xticks)
-
-            #ax = sns.heatmap(heatmap, xticklabels=width, yticklabels=height)
-            
-
             figure = ax.get_figure()
             plt.figure(figsize=(20, 20))
             figure.savefig(path_heatmap)
+
+            img = torch.squeeze(img.to(device="cpu"))
+            v_min, v_max = img.min(), img.max()
+            new_min, new_max = 0, 1
+            img = (img - v_min)/(v_max - v_min)*(new_max - new_min) + new_min
+            imgnp = list(np.array(img))
+            ax = plt.imshow(cv2.merge([imgnp[2],imgnp[1],imgnp[0]]))
+            plt.xticks(x, my_xticks)
+            plt.yticks(x, my_xticks)
+            figure = ax.get_figure()
+            plt.figure(figsize=(20, 20))
+            figure.savefig(path_overlay)
             
             
         model.train()
@@ -145,6 +135,7 @@ def occlusion(model, image, label, occ_size = 9, occ_stride = 1, occ_pixel = 0):
                 #wie steht der eine Output im verhältnis zum anderen?
                 #setting the heatmap location to probability value
                 if(probab[label]<minprob):
+                    minprob = probab[label]
                     img = input_image.clone().detach()
                 heatmap[((h_start+h_end)//2-(occ_stride//2)):((h_start+h_end)//2+(occ_stride//2)),(w_start+w_end)//2-(occ_stride//2):(w_start+w_end)//2+(occ_stride//2)] += probab[label]
                 # noLabel = 0

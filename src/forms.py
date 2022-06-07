@@ -1,14 +1,7 @@
-from datetime import datetime, timezone
 from flask_wtf import FlaskForm
-import pandas as pd
-from parso import split_lines
-from wtforms import (DecimalField, TextAreaField, IntegerField, BooleanField,
-                     RadioField,DateField)
-import matplotlib.pyplot as plt
-from wtforms.validators import InputRequired, Length
+from wtforms import (DecimalField,DateField)
+from wtforms.validators import InputRequired
 from wtforms.validators import NumberRange
-
-from utils.data_preperation.data_information import display_data
 
 class LatLongForm(FlaskForm):
     latitude = DecimalField('latitude',render_kw={'class':'form-control'}, validators=[InputRequired(),
