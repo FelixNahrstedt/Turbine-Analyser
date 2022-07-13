@@ -2,7 +2,13 @@
 # Windows
 Activate Virtual Environment: .\venv\Scripts\activate
 
-# How to Use:
+#  Colab Notebook 
+https://colab.research.google.com/drive/16HT6DIefboTrKxOkfAoiV7t30i_EvJU1?usp=sharing 
+
+
+
+
+# How to Use This Software:
 
 1. install packages from requirements txt
 2. install the 4 packages from the .whl files (if not working, you need to install Fiona, GDAL, pyhdf and rasterio for your system) 
@@ -14,7 +20,7 @@ https://www.lfd.uci.edu/~gohlke/pythonlibs/
 4.762x3 images --> 8-bit 40x40 pixel
 # left   = long + 0.00165
 # right  = long - 0.00185
-# bottom = lat + 0.0030
+# bottom = lat + 0.0030 
 # top    = lat - 0.0005
 
 # Csv Label Database:

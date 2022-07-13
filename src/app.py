@@ -3,6 +3,7 @@ import cv2
 from matplotlib import image, pyplot as plt
 import numpy as np
 from flask import Flask, redirect, render_template, url_for, request
+import torch
 from utils.model.evaluate_single_image import eval_image_with_model
 from utils.data_preperation.data_information import evaluate_images
 from utils.data_labeling.empty_Data import deleteGiffs, deleteImages
@@ -10,6 +11,8 @@ from utils.data_collection.convert import convert_img
 from utils.data_collection.download_Satellite_tiff import image_preparation
 from forms import LatLongForm
 import folium
+import torchvision.transforms as transforms
+
 
 path_data = 'Data/'
 path_base = ''
@@ -54,8 +57,10 @@ def imgInput():
         if(startDate==False):
             return render_template('index.html', form=LatLongForm(), error="Could not find usable Images around that Time/Location!")
         _maxMeanBrightness, _maxStdBrightness, imgArr = evaluate_images(path_jpg,key,form.datumField.data,bands)
-        
-        newArr = np.array(imgArr.copy())[:,20:40,10:30]
+        newArr = torch.tensor(np.array(imgArr.copy())[:,20:40,10:30])
+        transformForImage = transforms.Compose([transforms.ToPILImage(),transforms.Resize((40,40)),transforms.ToTensor()])
+        newArr = transformForImage(newArr).numpy()
+        print(len(newArr))
         savePara = list(newArr)
         ax = plt.imshow(cv2.merge([savePara[2],savePara[1],savePara[0]]))
         figure = ax.get_figure()
@@ -67,7 +72,6 @@ def imgInput():
         path_heatmap = f"static/gifs/heatmap-{str(int(form.latitude.data*1000))}-{str(int(form.longitude.data*1000))}.png"
         path_overlay = f"/static/gifs/overlayMaxImg-{str(int(form.latitude.data*1000))}-{str(int(form.longitude.data*1000))}.png"
         figure.savefig("src/"+path_color)
-
         ax2 = plt.imshow(cv2.merge([imgArr[2],imgArr[1],imgArr[0]]))
         figure2 = ax2.get_figure()
         figure2.savefig("src/"+path_colorFull)
@@ -101,8 +105,8 @@ def imgInput():
         
         converter.onlySaveGif(path_gif,imgArr)
         #Get Analysis
-
-        out, _, probs = eval_image_with_model(path_data+"/data_science/Models/Model-pretrained-dense-cropped-20.pt","src/"+path_heatmap,"src"+path_overlay,imgArr)
+        
+        out, _, probs = eval_image_with_model(path_data+"/data_science/Models/Final-Model.pt","src/"+path_heatmap,"src"+path_overlay,imgArr)
         
         #Define coordinates of where we want to center our map
         area = [float(form.latitude.data),float(form.longitude.data)]

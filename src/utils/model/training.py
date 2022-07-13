@@ -5,16 +5,17 @@ import torch.optim as optim
 
 def training_loop(n_epochs, optimizer:optim.Optimizer, model, loss_fn, train_loader, device,name, path_save,val=None): 
     dateNow = datetime.now().strftime("%d%m%y-%H%M%S")
-
-    for epoch in range(1, n_epochs + 1):
+    bestEpoch, bestLoss, bestAccuracy = 0,0,0
+    for epoch in range(0, n_epochs + 1):
         loss_train = 0.0
         correct=0
         total=0
         for imgs, labels in train_loader:
             imgs = imgs.to(device = device)
             labels = labels.to(device = device)
+            #imgs = torch.permute(imgs,())
             outputs = model(imgs)
-            loss = loss_fn(outputs, labels)
+            loss = loss_fn(outputs, labels) #.view(-1, 1).to(torch.float32) for other loss
 
             optimizer.zero_grad()
             loss.backward()
@@ -25,7 +26,18 @@ def training_loop(n_epochs, optimizer:optim.Optimizer, model, loss_fn, train_loa
             total += labels.shape[0]                 
             correct += int((predicted == labels).sum())
 
-        if epoch % 2 == 0:
+        mean_val_accuracy,mean_val_loss=onlyVal(model,val,device,loss_fn)
+
+        if(epoch == 0):
+            bestLoss = mean_val_loss
+            bestAccuracy = mean_val_accuracy
+        elif(loss_epoch*accu_epoch<bestLoss*bestAccuracy):
+            bestLoss = loss_epoch
+            bestAccuracy = accu_epoch
+            bestEpoch = epoch
+            
+            
+        if epoch % 4 == 0:
             # print('{} Epoch {}, Training loss {}'.format(
             # datetime.now(), epoch,
             # loss_train / len(train_loader)))
@@ -38,6 +50,7 @@ def training_loop(n_epochs, optimizer:optim.Optimizer, model, loss_fn, train_loa
                 writer = csv.writer(f)
                 # write the data
                 writer.writerow([name,epoch,accu_epoch,loss_epoch,mean_val_accuracy,mean_val_loss])
+    return bestEpoch, bestLoss, bestAccuracy
 
 
 def onlyVal(model,val_loader,device, loss_fn):

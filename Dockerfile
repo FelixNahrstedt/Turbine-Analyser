@@ -1,12 +1,19 @@
-# syntax=docker/dockerfile:1
+FROM python:3.8
 
-FROM python:3.8-slim-buster
+ADD requirements.txt /
 
-WORKDIR /python-docker
+WORKDIR /src
 
-COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+RUN apt-get update && apt-get install --yes libgdal-dev
 
-COPY . .
+RUN python -m pip install --upgrade pip
 
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+RUN pip install -r /requirements.txt
+
+COPY . /src
+
+ENTRYPOINT [ "python" ]
+
+RUN chmod 644 app.py
+
+CMD ["app.py"]

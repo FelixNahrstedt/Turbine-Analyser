@@ -54,14 +54,14 @@ def loop_through_Bund(path):
             f.write(json_string)
 def get_Locations_of_Country(path):
     overpass_url = "http://overpass-api.de/api/interpreter"
-    land = "Australia"
+    land = "Germany"
     height = 100
     overpass_query = """
     [out:json];
-    area["ISO3166-1"="AU"][admin_level=2];
-    (node["power"="generator"]["generator:source"="wind"]["manufacturer"](area);
-    way["power"="generator"]["generator:source"="wind"]["manufacturer"](area);
-    relation["power"="generator"]["generator:source"="wind"]["manufacturer"](area);
+    area["ISO3166-1"="DE"][admin_level=2];
+    (node["power"="generator"]["generator:source"="wind"]["manufacturer"="Enercon"](area);
+    way["power"="generator"]["generator:source"="wind"]["manufacturer"="Enercon"](area);
+    relation["power"="generator"]["generator:source"="wind"]["manufacturer"="Enercon"](area);
     );
     out center;
     """
@@ -101,8 +101,8 @@ def get_Locations_of_Country(path):
         #with open('/UBA_WindTurbineProject/JsonFiles/Shape_WindTurbines_LocationExport_OSM.json', 'w') as f:
         #  f.write(str(json))
     json_string = json.dumps(jsonData)
-    with open(f'{path}/{land}-WithHeights.json', 'w') as f:
-        f.write(json_string)
+    # with open(f'{path}/{land}-WithHeights.json', 'w') as f:
+    #     f.write(json_string)
     X = np.array(coords)
     print(f"Amount of Wind-Turbines {X.size}")
     plt.plot(X[:, 0], X[:, 1], 'o')

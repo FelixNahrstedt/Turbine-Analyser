@@ -82,22 +82,28 @@ def display_data(path_data):
     for row in rows:
         if(row[3] =='0'):
             amountSpin = amountSpin+1
+            goodQual.append(row[1])
+            goodQual2.append(row[2])
         if(row[3] =='1'):
             amountNotSpin = amountNotSpin +1
+            medQual1.append(row[1])
+            medQual2.append(row[2])
         if(row[3] =='2'):
             amountUndetected = amountUndetected +1
-        if(row[3] == '0' and (row[4] == '1' or row[4] == '2' )):
-            goodVisibleSpin = goodVisibleSpin +1
-        if(row[4] =='1' or row[4] =='2'):
-            goodQual.append(row[5])
-            goodQual2.append(row[6])
+            badQual1.append(row[1])
+            badQual2.append(row[2])
+        # if(row[3] == '0' and (row[4] == '1' or row[4] == '2' )):
+        #     goodVisibleSpin = goodVisibleSpin +1
+        # if(row[4] =='1' or row[4] =='2'):
+        #     goodQual.append(row[5])
+        #     goodQual2.append(row[6])
 
-        elif(row[4] =='3' or row[4] == '4'):
-            medQual1.append(row[5])
-            medQual2.append(row[6])
-        else:
-            badQual1.append(row[5])
-            badQual2.append(row[6])
+        # elif(row[4] =='3' or row[4] == '4'):
+        #     medQual1.append(row[5])
+        #     medQual2.append(row[6])
+        # else:
+        #     badQual1.append(row[5])
+        #     badQual2.append(row[6])
     #1 = Stehendes Windrad, 
     #2 = Nicht erkennbar
     print(f'Of these Spinning: {amountSpin}, Not Spinning: {amountNotSpin}, undetectable: {amountUndetected}')
@@ -105,14 +111,15 @@ def display_data(path_data):
     # Create Figure
 
 
-    fig = plt.figure(figsize = (8,6))
+    fig = plt.figure(figsize = (7,8))
     plt.title('Relationships Shadow Recognizability')
-    plt.ylabel('standard deviation')
-    plt.xlabel('mean')
+    plt.ylabel('longitude')
+    plt.xlabel('latitude')
     # Create Plot
-    plt.scatter(np.asarray(goodQual).astype(np.float16), NormalizeData(np.asarray(goodQual2).astype(np.float16)), s=2, color='green',label='Good Quality')
-    plt.scatter(np.asarray(medQual1).astype(np.float16),  NormalizeData(np.asarray(medQual2).astype(np.float16)),  s=2, color='blue',label='Medium Quality')
-    plt.scatter(np.asarray(badQual1).astype(np.float16),  NormalizeData(np.asarray(badQual2).astype(np.float16)), s=2, color='red',label='Bad Quality')
+    plt.scatter(np.asarray(goodQual2).astype(np.float16),np.asarray(goodQual).astype(np.float16), s=20, color='green',label='Spinning',alpha = 0.2)
+    plt.scatter(np.asarray(medQual2).astype(np.float16),np.asarray(medQual1).astype(np.float16),  s=20, color='blue',label='Not Spinning',alpha = 0.2)
+    plt.scatter(np.asarray(badQual2).astype(np.float16),np.asarray(badQual1).astype(np.float16), s=20, color='red',label='Undetected',alpha = 0.2)
+
     plt.legend(loc='lower right')
     plt.savefig("Data/data_science/PLOTS/Relationships_Shadow_Recognizability.png")
 

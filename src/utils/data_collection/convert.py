@@ -106,6 +106,12 @@ class convert_img:
       for img in imgArr:
           newImg = cv2.resize(img, (300,300), interpolation = cv2.INTER_AREA)
           biggerArray.append(newImg)
+      zeros = np.zeros([300,300], dtype="uint8")
+    #   cv2.imwrite("Data/data_science/PLOTS/rgbPlots/Red.jpg", cv2.merge([zeros, zeros, biggerArray[0]]))
+    #   cv2.imwrite("Data/data_science/PLOTS/rgbPlots/Green.jpg", cv2.merge([zeros, biggerArray[1], zeros]))
+    #   cv2.imwrite("Data/data_science/PLOTS/rgbPlots/Blue.jpg", cv2.merge([biggerArray[2], zeros, zeros]))
+
+      cv2.waitKey(0)
     #   for img in unmatchedArr:
     #       newImg = cv2.resize(img, (300,300), interpolation = cv2.INTER_AREA)
     #       biggerArrayUM.append(newImg)
