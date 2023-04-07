@@ -1,4 +1,4 @@
-# Sentinel 2 Bewegungserkennung
+# Sentinel 2 Motion Detection
 # Windows
 Activate Virtual Environment: .\venv\Scripts\activate
 
