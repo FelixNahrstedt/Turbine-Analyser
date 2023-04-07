@@ -91,7 +91,7 @@ fügen die Bilder zusammen???
 49.3065742 11.5390677
 Bundesland = Bayern; Windräder durch = 41
 
-# Wo ist es schwer erkennbar: 
+# Where is it hardly visible?: 
 Schatten auf See/Meer:
 53.4222285 10.4005054
 Bundesland = Schleswig-Holstein; Windräder durch = 0 - 310
