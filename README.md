@@ -25,33 +25,33 @@ https://www.lfd.uci.edu/~gohlke/pythonlibs/
 
 # Csv Label Database:
 
-Name-Bild: ID-Datum-Band.jpg
-ID: Bild-Id
+Name-Image: ID-Datum-Band.jpg
+ID: Image-Id
 lat: latitude
 lon: longitude
 
 Label-Bild: 
-            0 = Drehendes Windrad, 
-            1 = Stehendes Windrad, 
-            2 = Nicht erkennbar
+            0 = Spinning Turbine, 
+            1 = Standing Turbine, 
+            2 = Not Recognizable
 
 Erkennbarkeit: 
-            Dreht Sich: 
-            1 = 3 Rotoren Bewegen sich klar, 
-            2 = 1-2 Rotoren Bewegen sich klar, 
-            3 = Bewegung erkennbar, 
-            4 = Bewegung erkennbar wenn man weiß wo das Windrad steht, 
-            5 = Bewegung wahrscheinlich, wenn man weiß wo windrad steht
-            Dreht Sich Nicht: 
-            1 = 3 Rotoren stehen eindeutig, 
-            2 = Keiner der Rotoren bewegt sich über ein minimales Rauschen hinaus, 
-            3 = keine Bewegung erkennbar, Windrad erkennbar, 
-            4 = keine Bewegung erkennbar wenn man weiß wo das Windrad steht, 
-            5 = Bewegung unwahrscheinlich, wenn man weiß wo windrad steht
-Mean-Bild-hell: durchschnittshelligkeit des hellsten bandes
-std-Bild-hell: standardabweichung des hellsten bildes
-Datum: Datum 
-Region: Bundesland
+            Spinning: 
+            1 = 3 Blades clearly spinning, 
+            2 = 1-2 Blades clearly spinning, 
+            3 = Motion Visible, 
+            4 = Motion Visible if turbine location known, 
+            5 = Motion likely, if turbine location known
+            Not Spinning: 
+            1 = 3 Blades clearly standing, 
+            2 = 3 Blades clearly spinning - slight noise, 
+            3 = no motion visible, turbine visible, 
+            4 = no motion visible if turbine position known, 
+            5 = motion unlikely, if turbine location known
+Mean-Image-brightness: Mean-Image-brightness of lightest band
+std-image-brightness: Mean standard deviation of lightest image 
+Date: Date 
+Region: County
 
 # Beauty Shots: 
 
